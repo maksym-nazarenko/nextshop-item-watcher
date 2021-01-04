@@ -31,6 +31,6 @@ jobs:
         run: |
           go get
 
-      - name: Run checks
+      - name: Unit tests
         run: |
           go test -v ./...
