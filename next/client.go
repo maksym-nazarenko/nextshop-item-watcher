@@ -34,7 +34,6 @@ type ItemOption struct {
 	Number            int    `json:"OptionNumber,string"`
 	Price             string
 	StockStatusString string `json:"StockStatus"`
-	Status            *StockStatus
 }
 
 const (
@@ -52,23 +51,6 @@ const (
 	// EndpointGetExtendedOptions is an endpoint for extended options retrieval
 	EndpointGetExtendedOptions = "/itemstock/getextendedoptions"
 )
-
-// StockStatus holds various statuses like "InStock", "ComingSoon", etc
-type StockStatus string
-
-// Parse parses string representation of status and returns StockStatus type
-// or ItemStatusUnknown if status string is invalid
-func (s *StockStatus) Parse(value string) *StockStatus {
-	var ret StockStatus = ItemStatusUnknown
-	switch value {
-	case ItemStatusInStock:
-		ret = ItemStatusInStock
-	case ItemStatusComingSoon:
-		ret = ItemStatusComingSoon
-	}
-
-	return &ret
-}
 
 func (c *Client) buildEndpointURL(ep string, pathVars ...string) string {
 
@@ -102,6 +84,24 @@ func (c *Client) GetOptionsByArticle(article string) ([]ItemOption, APIError) {
 	json.NewDecoder(strings.NewReader(bodyString)).Decode(&optionResponse)
 
 	return optionResponse.Options, nil
+}
+
+// GetItemInfo checks the state of a particular shop item
+func (c *Client) GetItemInfo(shopItem ShopItem) (ItemOption, APIError) {
+	var option ItemOption
+
+	items, err := c.GetOptionsByArticle(shopItem.Article)
+	if err != nil {
+		return ItemOption{}, err
+	}
+
+	for _, item := range items {
+		if item.Number == shopItem.SizeID {
+			return item, nil
+		}
+	}
+
+	return option, errors.New("Item not found")
 }
 
 // NewClient creates a Next client
