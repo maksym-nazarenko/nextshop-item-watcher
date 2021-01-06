@@ -33,7 +33,6 @@ func (w *ItemWatcher) AddHandlers(handlers ...ItemOptionHandler) {
 
 // AddHandlerFuncs adds one or more handler functions to be called when the item becomes available
 func (w *ItemWatcher) AddHandlerFuncs(handleFuncs ...handleFuncType) {
-	w.handlers = make([]ItemOptionHandler, 0, len(handleFuncs))
 	for _, f := range handleFuncs {
 		w.handlers = append(w.handlers, HandleFuncWrapper{handleFunc: f})
 	}
