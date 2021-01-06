@@ -28,7 +28,7 @@ type ItemWatcher struct {
 
 // AddHandlers adds one or more handlers to be notified when the item becomes available
 func (w *ItemWatcher) AddHandlers(handlers ...ItemOptionHandler) {
-	copy(w.handlers, handlers)
+	w.handlers = append(w.handlers, handlers...)
 }
 
 // AddHandlerFuncs adds one or more handler functions to be called when the item becomes available
