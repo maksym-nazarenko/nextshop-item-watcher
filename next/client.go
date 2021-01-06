@@ -52,6 +52,10 @@ const (
 	EndpointGetExtendedOptions = "/itemstock/getextendedoptions"
 )
 
+func (item ItemOption) String() string {
+	return fmt.Sprintf("[%s] %s, %s", item.StockStatusString, item.Name, item.Price)
+}
+
 func (c *Client) buildEndpointURL(ep string, pathVars ...string) string {
 
 	endpoint := c.BaseURL + "/" + c.Language + ep
