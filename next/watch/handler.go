@@ -1,4 +1,4 @@
-package watcher
+package watch
 
 import "github.com/maxim-nazarenko/nextshop-item-watcher/next"
 
