@@ -1,6 +1,7 @@
 package watcher
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -59,4 +60,14 @@ func TestAddHandlerFuncs_appendsHandlerFuncs(t *testing.T) {
 
 	watcher.AddHandlerFuncs(func(...next.ItemOption) {}, func(...next.ItemOption) {})
 	assert.Len(t, watcher.handlers, 5)
+}
+
+func TestProcessInStockItems_callsAllHandlers(t *testing.T) {
+	watcher := ItemWatcher{}
+
+	handledItems := []string{}
+
+	watcher.AddHandlerFuncs(func(items ...next.ItemOption) {
+		handledItems = append(handledItems, fmt.Sprintf("handler1 handled %d items", len(items)))
+	})
 }
