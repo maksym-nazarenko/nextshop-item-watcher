@@ -30,6 +30,7 @@ type ItemExtendedOption struct {
 
 // ItemOption holds option data in ItemExtendedOption Options[] slice
 type ItemOption struct {
+	Article           string
 	Name              string `json:"OptionName"`
 	Number            int    `json:"OptionNumber,string"`
 	Price             string
@@ -101,6 +102,8 @@ func (c *Client) GetItemInfo(shopItem ShopItem) (ItemOption, APIError) {
 
 	for _, item := range items {
 		if item.Number == shopItem.SizeID {
+			item.Article = shopItem.Article
+
 			return item, nil
 		}
 	}

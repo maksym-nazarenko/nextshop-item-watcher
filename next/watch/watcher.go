@@ -2,6 +2,7 @@ package watch
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next"
@@ -11,8 +12,8 @@ import (
 // Watcher interface to be implemented by different watchers
 type Watcher interface {
 	AddItem(next.ShopItem) error
-	AddHandlers(...ItemOptionHandler)
-	AddHandlerFuncs(...handleFuncType)
+	InStockChan() <-chan next.ItemOption
+	RemoveItem(next.ShopItem)
 	Start() error
 	Stop() error
 }
@@ -23,19 +24,8 @@ type ItemWatcher struct {
 	UpdateInterval time.Duration
 	cron           *cron.Cron
 	items          []next.ShopItem
-	handlers       []ItemOptionHandler
-}
-
-// AddHandlers adds one or more handlers to be notified when the item becomes available
-func (w *ItemWatcher) AddHandlers(handlers ...ItemOptionHandler) {
-	w.handlers = append(w.handlers, handlers...)
-}
-
-// AddHandlerFuncs adds one or more handler functions to be called when the item becomes available
-func (w *ItemWatcher) AddHandlerFuncs(handleFuncs ...handleFuncType) {
-	for _, f := range handleFuncs {
-		w.handlers = append(w.handlers, HandleFuncWrapper{handleFunc: f})
-	}
+	itemsLock      sync.Locker
+	inStockChan    chan next.ItemOption
 }
 
 // Start begins watcher's loop of checks
@@ -51,6 +41,7 @@ func (w *ItemWatcher) Start() error {
 
 // Stop terminates periodic checking
 func (w *ItemWatcher) Stop() error {
+	defer close(w.inStockChan)
 	w.cron.Stop()
 
 	return nil
@@ -78,29 +69,45 @@ func (w *ItemWatcher) AddItem(item next.ShopItem) error {
 	return nil
 }
 
-func (w *ItemWatcher) processInStockItems(items ...next.ItemOption) {
+// RemoveItem removes watching item from the list so it will not be processed next time when cron fires
+func (w *ItemWatcher) RemoveItem(item next.ShopItem) {
+	w.itemsLock.Lock()
+	defer w.itemsLock.Unlock()
+	for index, it := range w.items {
+		if item.Article == it.Article && item.SizeID == item.SizeID {
+			w.items = append(w.items[:index], w.items[index+1:]...)
+			return
+		}
+	}
+}
 
-	inStockItems := make([]next.ItemOption, 0, 10)
+// InStockChan returns channel where InStock items will appear
+func (w ItemWatcher) InStockChan() <-chan next.ItemOption {
+	return w.inStockChan
+}
+
+func (w *ItemWatcher) processInStockItems(items ...next.ItemOption) {
+	w.itemsLock.Lock()
+	defer w.itemsLock.Unlock()
 	for _, item := range items {
 		if item.StockStatusString != next.ItemStatusInStock {
 			continue
 		}
-		inStockItems = append(inStockItems, item)
-	}
-
-	if len(inStockItems) < 1 {
-		return
-	}
-
-	for _, h := range w.handlers {
-		h.Handle(inStockItems...)
+		w.inStockChan <- item
 	}
 }
 
 // New constructs new Watcher instance
 func New(client *next.Client, config *Config) Watcher {
 	// TODO: add TZ support
-	watcher := ItemWatcher{Client: client, UpdateInterval: config.UpdateInterval, cron: cron.New()}
+	watcher := ItemWatcher{
+		Client:         client,
+		UpdateInterval: config.UpdateInterval,
+		cron:           cron.New(),
+		itemsLock:      &sync.Mutex{},
+	}
+
+	watcher.inStockChan = make(chan next.ItemOption, 20)
 
 	return &watcher
 }
