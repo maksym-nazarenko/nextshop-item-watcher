@@ -14,6 +14,7 @@ type Watcher interface {
 	AddItem(next.ShopItem) error
 	InStockChan() <-chan next.ItemOption
 	RemoveItem(next.ShopItem)
+	Process()
 	Start() error
 	Stop() error
 }
@@ -30,10 +31,6 @@ type ItemWatcher struct {
 
 // Start begins watcher's loop of checks
 func (w *ItemWatcher) Start() error {
-	// TODO: this should be added only once
-	interval := "@every " + w.UpdateInterval.String()
-	w.cron.AddFunc(interval, w.onTimer)
-
 	w.cron.Start()
 
 	return nil
@@ -45,6 +42,11 @@ func (w *ItemWatcher) Stop() error {
 	w.cron.Stop()
 
 	return nil
+}
+
+// Process is triggerred each time the cron ticks
+func (w *ItemWatcher) Process() {
+	w.onTimer()
 }
 
 func (w *ItemWatcher) onTimer() {
@@ -108,6 +110,8 @@ func New(client *next.Client, config *Config) Watcher {
 	}
 
 	watcher.inStockChan = make(chan next.ItemOption, 20)
+	interval := "@every " + watcher.UpdateInterval.String()
+	watcher.cron.AddFunc(interval, watcher.Process)
 
 	return &watcher
 }

@@ -1,73 +1,69 @@
 package watch
 
 import (
-	"fmt"
 	"testing"
+	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/maxim-nazarenko/nextshop-item-watcher/next/testutils"
 
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next"
 )
 
-type TestHandler int
+func TestWatcherPassesInStockItemsToChannel(t *testing.T) {
+	payload := `
+	{
+		"Description": "Розовая в цветочек - Теплая пижама",
+		"ItemNumber": "821-585",
+		"ComingSoonEnabled": true,
+		"Options": [
+			{
+				"OptionNumber": "10",
+				"StockStatus": "ComingSoon",
+				"StockMessage": "середина января",
+				"OptionName": "EU XS стандартный",
+				"Price": "635 грн",
+				"LinkedItem": []
+			},
+			{
+				"OptionNumber": "11",
+				"StockStatus": "InStock",
+				"StockMessage": "середина января",
+				"OptionName": "EU S стандартный",
+				"Price": "635 грн",
+				"LinkedItem": []
+			},
+			{
+				"OptionNumber": "12",
+				"StockStatus": "ComingSoon",
+				"StockMessage": "середина января",
+				"OptionName": "EU M стандартный",
+				"Price": "635 грн",
+				"LinkedItem": []
+			}
+		],
+		"PersonalisedGift": "N",
+		"PersonalisedGiftTheme": "0",
+		"DDFulfiller": "",
+		"FulfilmentType": ""
+	}`
 
-func (t TestHandler) Handle(items ...next.ItemOption) {
+	w := New(
+		next.NewClient(
+			testutils.NewClientWithPayload(payload),
+			"https://www.example.com", "ru",
+		),
+		&Config{UpdateInterval: 1 * time.Second},
+	)
 
-}
+	w.AddItem(next.ShopItem{Article: "821-585", SizeID: 11})
 
-func TestAddHandlers_addsAllHandlers(t *testing.T) {
-	watcher := ItemWatcher{}
-	assert.Len(t, watcher.handlers, 0)
+	w.Process()
+	defer w.Stop()
 
-	watcher.AddHandlers(new(TestHandler), new(TestHandler))
-	assert.Len(t, watcher.handlers, 2)
-}
-
-func TestAddHandlers_appendsHandlers(t *testing.T) {
-	watcher := ItemWatcher{}
-	assert.Len(t, watcher.handlers, 0)
-
-	watcher.AddHandlers(new(TestHandler), new(TestHandler))
-	assert.Len(t, watcher.handlers, 2)
-
-	watcher.AddHandlers(new(TestHandler))
-	assert.Len(t, watcher.handlers, 3)
-}
-
-func TestAddHandlers_addsNoHandlersIfEmptyVarargsPassed(t *testing.T) {
-	watcher := ItemWatcher{}
-	assert.Len(t, watcher.handlers, 0)
-
-	watcher.AddHandlers()
-	assert.Len(t, watcher.handlers, 0)
-}
-
-func TestAddHandlerFuncs_addsAllHandlerFuncs(t *testing.T) {
-	watcher := ItemWatcher{}
-	assert.Len(t, watcher.handlers, 0)
-
-	watcher.AddHandlerFuncs(func(...next.ItemOption) {}, func(...next.ItemOption) {}, func(...next.ItemOption) {})
-
-	assert.Len(t, watcher.handlers, 3)
-}
-
-func TestAddHandlerFuncs_appendsHandlerFuncs(t *testing.T) {
-	watcher := ItemWatcher{}
-	assert.Len(t, watcher.handlers, 0)
-
-	watcher.AddHandlerFuncs(func(...next.ItemOption) {}, func(...next.ItemOption) {}, func(...next.ItemOption) {})
-	assert.Len(t, watcher.handlers, 3)
-
-	watcher.AddHandlerFuncs(func(...next.ItemOption) {}, func(...next.ItemOption) {})
-	assert.Len(t, watcher.handlers, 5)
-}
-
-func TestProcessInStockItems_callsAllHandlers(t *testing.T) {
-	watcher := ItemWatcher{}
-
-	handledItems := []string{}
-
-	watcher.AddHandlerFuncs(func(items ...next.ItemOption) {
-		handledItems = append(handledItems, fmt.Sprintf("handler1 handled %d items", len(items)))
-	})
+	select {
+	case <-w.InStockChan():
+		return
+	case <-time.After(time.Second):
+		t.Error("No items received")
+	}
 }
