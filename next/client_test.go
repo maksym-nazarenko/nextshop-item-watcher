@@ -114,7 +114,7 @@ func TestGetItemInfo(t *testing.T) {
 
 	assert.NoError(err)
 	assert.NotNil(option)
-	assert.EqualValues(ItemOption{Name: "EU S стандартный", Number: 11, Price: "635 грн", StockStatusString: "ComingSoon"}, option)
+	assert.EqualValues(ItemOption{Article: "821-585", Name: "EU S стандартный", Number: 11, Price: "635 грн", StockStatusString: "ComingSoon"}, option)
 }
 
 func TestGetItemInfo_returnsErrorOnWrongSizeID(t *testing.T) {
