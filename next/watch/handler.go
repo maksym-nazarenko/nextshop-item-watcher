@@ -1,13 +1,15 @@
 package watch
 
-import "github.com/maxim-nazarenko/nextshop-item-watcher/next"
+import (
+	"github.com/maxim-nazarenko/nextshop-item-watcher/next/shop"
+)
 
 // ItemOptionHandler is a common interface for ItemOption processors
 type ItemOptionHandler interface {
-	Handle(...next.ItemOption)
+	Handle(...shop.ItemOption)
 }
 
-type handleFuncType func(...next.ItemOption)
+type handleFuncType func(...shop.ItemOption)
 
 // HandleFuncWrapper simply wraps function to match ItemOptionHandler interface
 type HandleFuncWrapper struct {
@@ -15,6 +17,6 @@ type HandleFuncWrapper struct {
 }
 
 // Handle handles particular ItemOption
-func (h HandleFuncWrapper) Handle(itemOption ...next.ItemOption) {
+func (h HandleFuncWrapper) Handle(itemOption ...shop.ItemOption) {
 	h.handleFunc(itemOption...)
 }

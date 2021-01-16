@@ -5,16 +5,16 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/maxim-nazarenko/nextshop-item-watcher/next"
+	"github.com/maxim-nazarenko/nextshop-item-watcher/next/shop"
 )
 
 func TestHandleFuncWrapper_wrapsPlainFunction(t *testing.T) {
 	var actualString string
 
-	option := next.ItemOption{Name: "test item", Number: 29, Price: "12 euros", StockStatusString: "InStock"}
+	option := shop.ItemOption{Name: "test item", Number: 29, Price: "12 euros", StockStatusString: "InStock"}
 	expectedString := option.String()
 
-	wrapper := HandleFuncWrapper{handleFunc: func(options ...next.ItemOption) {
+	wrapper := HandleFuncWrapper{handleFunc: func(options ...shop.ItemOption) {
 		actualString = options[0].String()
 	}}
 

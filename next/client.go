@@ -8,6 +8,13 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/maxim-nazarenko/nextshop-item-watcher/next/shop"
+)
+
+const (
+	// EndpointGetExtendedOptions is an endpoint for extended options retrieval
+	EndpointGetExtendedOptions = "/itemstock/getextendedoptions"
 )
 
 // HTTPClient interface to be implemented by different clients
@@ -22,41 +29,6 @@ type Client struct {
 	Language   string
 }
 
-// ItemExtendedOption holds extended option response from Next API
-type ItemExtendedOption struct {
-	Description string
-	Options     []ItemOption
-}
-
-// ItemOption holds option data in ItemExtendedOption Options[] slice
-type ItemOption struct {
-	Article           string
-	Name              string `json:"OptionName"`
-	Number            int    `json:"OptionNumber,string"`
-	Price             string
-	StockStatusString string `json:"StockStatus"`
-}
-
-const (
-	// ItemStatusInStock holds string representation of in-stock item
-	ItemStatusInStock = "InStock"
-
-	// ItemStatusComingSoon holds string representation of coming soon item
-	ItemStatusComingSoon = "ComingSoon"
-
-	// ItemStatusUnknown is a placeholder for unknown status
-	ItemStatusUnknown = "Unknown"
-)
-
-const (
-	// EndpointGetExtendedOptions is an endpoint for extended options retrieval
-	EndpointGetExtendedOptions = "/itemstock/getextendedoptions"
-)
-
-func (item ItemOption) String() string {
-	return fmt.Sprintf("[%s] %s, %s", item.StockStatusString, item.Name, item.Price)
-}
-
 func (c *Client) buildEndpointURL(ep string, pathVars ...string) string {
 
 	endpoint := c.BaseURL + "/" + c.Language + ep
@@ -68,7 +40,7 @@ func (c *Client) buildEndpointURL(ep string, pathVars ...string) string {
 }
 
 // GetOptionsByArticle fetched item options by article
-func (c *Client) GetOptionsByArticle(article string) ([]ItemOption, APIError) {
+func (c *Client) GetOptionsByArticle(article string) ([]shop.ItemOption, error) {
 	url := fmt.Sprintf("%s?_=%d", c.buildEndpointURL(EndpointGetExtendedOptions, article), time.Now().Unix())
 	var resp *http.Response
 	var err error
@@ -76,7 +48,7 @@ func (c *Client) GetOptionsByArticle(article string) ([]ItemOption, APIError) {
 		return nil, fmt.Errorf("Couldn't get extended options for <%s> article: %s", article, err.Error())
 	}
 
-	var optionResponse ItemExtendedOption
+	var optionResponse shop.ItemExtendedOption
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -92,12 +64,12 @@ func (c *Client) GetOptionsByArticle(article string) ([]ItemOption, APIError) {
 }
 
 // GetItemInfo checks the state of a particular shop item
-func (c *Client) GetItemInfo(shopItem ShopItem) (ItemOption, APIError) {
-	var option ItemOption
+func (c *Client) GetItemInfo(shopItem shop.Item) (shop.ItemOption, error) {
+	var option shop.ItemOption
 
 	items, err := c.GetOptionsByArticle(shopItem.Article)
 	if err != nil {
-		return ItemOption{}, err
+		return shop.ItemOption{}, err
 	}
 
 	for _, item := range items {

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/maxim-nazarenko/nextshop-item-watcher/next/shop"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/testutils"
 
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next"
@@ -55,7 +56,7 @@ func TestWatcherPassesInStockItemsToChannel(t *testing.T) {
 		&Config{UpdateInterval: 1 * time.Second},
 	)
 
-	w.AddItem(next.ShopItem{Article: "821-585", SizeID: 11})
+	w.AddItem(shop.Item{Article: "821-585", SizeID: 11})
 
 	w.Process()
 	defer w.Stop()

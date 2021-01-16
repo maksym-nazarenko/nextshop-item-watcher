@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/maxim-nazarenko/nextshop-item-watcher/next/shop"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/testutils"
 
 	"github.com/stretchr/testify/assert"
@@ -109,12 +110,12 @@ func TestGetItemInfo(t *testing.T) {
 	}`
 	client := NewClient(testutils.NewClientWithPayload(payload), "https://www.example.com", "ru")
 
-	option, err := client.GetItemInfo(ShopItem{Article: "821-585", SizeID: 11})
+	option, err := client.GetItemInfo(shop.Item{Article: "821-585", SizeID: 11})
 	assert := assert.New(t)
 
 	assert.NoError(err)
 	assert.NotNil(option)
-	assert.EqualValues(ItemOption{Article: "821-585", Name: "EU S стандартный", Number: 11, Price: "635 грн", StockStatusString: "ComingSoon"}, option)
+	assert.EqualValues(shop.ItemOption{Article: "821-585", Name: "EU S стандартный", Number: 11, Price: "635 грн", StockStatusString: "ComingSoon"}, option)
 }
 
 func TestGetItemInfo_returnsErrorOnWrongSizeID(t *testing.T) {
@@ -156,7 +157,7 @@ func TestGetItemInfo_returnsErrorOnWrongSizeID(t *testing.T) {
 	}`
 	client := NewClient(testutils.NewClientWithPayload(payload), "https://www.example.com", "ru")
 
-	_, err := client.GetItemInfo(ShopItem{Article: "821-585", SizeID: 1})
+	_, err := client.GetItemInfo(shop.Item{Article: "821-585", SizeID: 1})
 	assert.Error(t, err)
 }
 

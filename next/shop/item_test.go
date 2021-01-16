@@ -1,4 +1,4 @@
-package next
+package shop
 
 import (
 	"testing"
