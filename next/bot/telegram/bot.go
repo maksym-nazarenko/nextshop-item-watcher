@@ -13,7 +13,7 @@ import (
 // Bot works as a frontend to the systems
 type Bot struct {
 	httpClient *next.Client
-	mediator   *mediator.Mediator
+	mediator   *mediator.SubscriptionMediator
 	config     *Config
 	tb         *telebot.Bot
 }
@@ -46,7 +46,7 @@ func (b *Bot) cmdStart(m *telebot.Message) {
 }
 
 // New instantiates new Bot object
-func New(httpClient *next.Client, mediator *mediator.Mediator, config *Config, token string) (*Bot, error) {
+func New(httpClient *next.Client, mediator *mediator.SubscriptionMediator, config *Config, token string) (*Bot, error) {
 	longPoller := &telebot.LongPoller{
 		Timeout: 5 * time.Second,
 	}
