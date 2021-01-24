@@ -8,6 +8,7 @@ import (
 	"gopkg.in/tucnak/telebot.v2"
 )
 
+// WhitelistUserMiddlewarePoller filters user with whitelisting strategy
 type WhitelistUserMiddlewarePoller struct {
 	allowedUsers map[string]bool
 }
@@ -25,7 +26,8 @@ func (p *WhitelistUserMiddlewarePoller) filter(u *telebot.Update) bool {
 	return true
 }
 
-func NewWhitelistUserMiddlewarePoller(originalPoller telebot.Poller, allowedUsers []subscription.User) telebot.Poller {
+// NewWhitelistUserMiddlewarePoller instantiates new WhitelistUserMiddlewarePoller object
+func NewWhitelistUserMiddlewarePoller(originalPoller telebot.Poller, allowedUsers []subscription.User) *telebot.MiddlewarePoller {
 	allowedMap := make(map[string]bool)
 	for _, u := range allowedUsers {
 		allowedMap[u.ID] = true

@@ -6,11 +6,13 @@ import (
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/subscription"
 )
 
+// MemoryStorage describes in-memory storage for subscriptions
 type MemoryStorage struct {
 	items     map[string][]subscription.Item
 	itemsLock sync.Locker
 }
 
+// ReadSubscriptions reads all subscriptions from subscription storage
 func (m *MemoryStorage) ReadSubscriptions() []subscription.Item {
 	ret := make([]subscription.Item, 0, len(m.items))
 	for _, item := range m.items {
@@ -20,6 +22,7 @@ func (m *MemoryStorage) ReadSubscriptions() []subscription.Item {
 	return ret
 }
 
+// CreateSubscription creates new subscription from subscription storage
 func (m *MemoryStorage) CreateSubscription(item subscription.Item) (bool, error) {
 	m.itemsLock.Lock()
 	defer m.itemsLock.Unlock()
@@ -40,12 +43,14 @@ func (m *MemoryStorage) CreateSubscription(item subscription.Item) (bool, error)
 	return true, nil
 }
 
+// RemoveSubscription removes subscription from subscription storage
 func (m *MemoryStorage) RemoveSubscription(item subscription.Item) (bool, error) {
 	panic("not implemented") // TODO: Implement
 }
 
-func NewMemoryStorage() subscription.Storage {
-	return &MemoryStorage{
+// NewMemoryStorage constructs new instance of MemoryStorage
+func NewMemoryStorage() MemoryStorage {
+	return MemoryStorage{
 		items:     make(map[string][]subscription.Item, 10),
 		itemsLock: &sync.Mutex{},
 	}

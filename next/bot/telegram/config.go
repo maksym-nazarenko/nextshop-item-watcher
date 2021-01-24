@@ -5,12 +5,11 @@ import (
 )
 
 const (
+	// TELEGRAM_TOKEN_ENV_VARIABLE holds the name of environment variable where Telegram token resides
 	TELEGRAM_TOKEN_ENV_VARIABLE = "NWI_TELEGRAM_TOKEN"
 )
 
 // Config holds telegram bot configuration
 type Config struct {
-	// httpClient   *next.Client
-	// mediator     *mediator.Mediator
 	AllowedUsers []subscription.User
 }

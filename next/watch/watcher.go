@@ -100,8 +100,8 @@ func (w *ItemWatcher) processInStockItems(items ...shop.ItemOption) {
 	}
 }
 
-// New constructs new Watcher instance
-func New(client *next.Client, config *Config) Watcher {
+// New constructs new ItemWatcher instance
+func New(client *next.Client, config *Config) ItemWatcher {
 	// TODO: add TZ support
 	watcher := ItemWatcher{
 		Client:         client,
@@ -114,5 +114,5 @@ func New(client *next.Client, config *Config) Watcher {
 	interval := "@every " + watcher.UpdateInterval.String()
 	watcher.cron.AddFunc(interval, watcher.Process)
 
-	return &watcher
+	return watcher
 }
