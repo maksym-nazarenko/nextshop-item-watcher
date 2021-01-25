@@ -48,6 +48,7 @@ func (item ItemOption) String() string {
 	return fmt.Sprintf("[%s] %s, %s", item.StockStatusString, item.Name, item.Price)
 }
 
+// NewItem instantiates new Item object with normalized article string
 func NewItem(article string, size int) Item {
 	return Item{Article: NormalizeArticle(article), SizeID: size}
 }

@@ -60,6 +60,7 @@ func (m *SubscriptionMediator) RemoveSubscription(item subscription.Item) (bool,
 	return m.RemoveSubscription(item)
 }
 
+// Start begins the main loop
 func (m *SubscriptionMediator) Start() {
 	var item subscription.Item
 	var err error
