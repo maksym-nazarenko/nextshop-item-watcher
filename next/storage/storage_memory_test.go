@@ -18,11 +18,9 @@ func TestStorageMemory_addItemToEmptyStorage(t *testing.T) {
 	added, err := strg.CreateSubscription(
 		subscription.Item{
 			User: subscription.User{ID: "user-1"},
-			ItemOption: shop.ItemOption{
-				Article:           "111-222",
-				Name:              "Item 1",
-				Price:             "10 euros",
-				StockStatusString: shop.ItemStatusInStock,
+			ShopItem: shop.Item{
+				Article: "111-222",
+				SizeID:  1,
 			},
 		},
 	)
@@ -42,12 +40,9 @@ func TestStorageMemory_addItemAddsSameItemOnlyOnce(t *testing.T) {
 	added, err := strg.CreateSubscription(
 		subscription.Item{
 			User: subscription.User{ID: "user-1"},
-			ItemOption: shop.ItemOption{
-				Article:           "111-222",
-				Name:              "Item 1",
-				Price:             "10 euros",
-				Number:            10,
-				StockStatusString: shop.ItemStatusInStock,
+			ShopItem: shop.Item{
+				Article: "111-222",
+				SizeID:  10,
 			},
 		},
 	)
@@ -60,12 +55,9 @@ func TestStorageMemory_addItemAddsSameItemOnlyOnce(t *testing.T) {
 	added, err = strg.CreateSubscription(
 		subscription.Item{
 			User: subscription.User{ID: "user-1"},
-			ItemOption: shop.ItemOption{
-				Article:           "111-222",
-				Name:              "Item 1",
-				Price:             "10 euros",
-				Number:            10,
-				StockStatusString: shop.ItemStatusInStock,
+			ShopItem: shop.Item{
+				Article: "111-222",
+				SizeID:  10,
 			},
 		},
 	)
@@ -85,12 +77,9 @@ func TestStorageMemory_addItemAddsSecondItemIfDifferent(t *testing.T) {
 	added, err := strg.CreateSubscription(
 		subscription.Item{
 			User: subscription.User{ID: "user-1"},
-			ItemOption: shop.ItemOption{
-				Article:           "111-333",
-				Name:              "Item 1",
-				Price:             "11 euros",
-				Number:            11,
-				StockStatusString: shop.ItemStatusInStock,
+			ShopItem: shop.Item{
+				Article: "111-333",
+				SizeID:  11,
 			},
 		},
 	)
@@ -103,12 +92,9 @@ func TestStorageMemory_addItemAddsSecondItemIfDifferent(t *testing.T) {
 	added, err = strg.CreateSubscription(
 		subscription.Item{
 			User: subscription.User{ID: "user-1"},
-			ItemOption: shop.ItemOption{
-				Article:           "111-333",
-				Name:              "Item 2",
-				Price:             "12 euros",
-				Number:            12,
-				StockStatusString: shop.ItemStatusInStock,
+			ShopItem: shop.Item{
+				Article: "111-333",
+				SizeID:  12,
 			},
 		},
 	)
@@ -116,5 +102,5 @@ func TestStorageMemory_addItemAddsSecondItemIfDifferent(t *testing.T) {
 	assert.True(added)
 	assert.NoError(err)
 
-	assert.Equal(1, len(strg.ReadSubscriptions()))
+	assert.Equal(2, len(strg.ReadSubscriptions()))
 }

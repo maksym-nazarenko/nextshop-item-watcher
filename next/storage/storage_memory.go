@@ -34,12 +34,12 @@ func (m *MemoryStorage) CreateSubscription(item subscription.Item) (bool, error)
 
 	userSubscriptions := m.items[item.User.ID]
 	for _, el := range userSubscriptions {
-		if item.User.ID == el.User.ID && item.ItemOption.Article == el.ItemOption.Article && item.ItemOption.Number == el.ItemOption.Number {
+		if item.User.ID == el.User.ID && item.ShopItem.Article == el.ShopItem.Article && item.ShopItem.SizeID == el.ShopItem.SizeID {
 			return false, nil
 		}
 	}
 
-	userSubscriptions = append(userSubscriptions, item)
+	m.items[item.User.ID] = append(userSubscriptions, item)
 	return true, nil
 }
 

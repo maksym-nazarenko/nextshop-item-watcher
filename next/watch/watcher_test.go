@@ -53,18 +53,18 @@ func TestWatcherPassesInStockItemsToChannel(t *testing.T) {
 			testutils.NewClientWithPayload(payload),
 			"https://www.example.com", "ru",
 		),
-		&Config{UpdateInterval: 1 * time.Second},
+		&Config{UpdateInterval: 10 * time.Millisecond},
 	)
 
-	w.AddItem(shop.Item{Article: "821-585", SizeID: 11})
+	w.AddItem(&shop.Item{Article: "821-585", SizeID: 11})
 
-	w.Process()
+	w.Run()
 	defer w.Stop()
 
 	select {
 	case <-w.InStockChan():
 		return
-	case <-time.After(time.Second):
+	case <-time.After(2 * time.Second):
 		t.Error("No items received")
 	}
 }

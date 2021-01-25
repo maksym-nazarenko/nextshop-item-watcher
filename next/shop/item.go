@@ -47,3 +47,7 @@ const (
 func (item ItemOption) String() string {
 	return fmt.Sprintf("[%s] %s, %s", item.StockStatusString, item.Name, item.Price)
 }
+
+func NewItem(article string, size int) Item {
+	return Item{Article: NormalizeArticle(article), SizeID: size}
+}

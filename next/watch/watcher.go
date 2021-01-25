@@ -12,10 +12,9 @@ import (
 
 // Watcher interface to be implemented by different watchers
 type Watcher interface {
-	AddItem(shop.Item) error
-	InStockChan() <-chan shop.ItemOption
+	AddItem(*shop.Item) error
+	InStockChan() <-chan shop.Item
 	RemoveItem(shop.Item)
-	Process()
 	Start() error
 	Stop() error
 }
@@ -25,9 +24,9 @@ type ItemWatcher struct {
 	Client         *next.Client
 	UpdateInterval time.Duration
 	cron           *cron.Cron
-	items          []shop.Item
+	items          []*shop.Item
 	itemsLock      sync.Locker
-	inStockChan    chan shop.ItemOption
+	inStockChan    chan shop.Item
 }
 
 // Start begins watcher's loop of checks
@@ -45,8 +44,8 @@ func (w *ItemWatcher) Stop() error {
 	return nil
 }
 
-// Process is triggerred each time the cron ticks
-func (w *ItemWatcher) Process() {
+// Run satisfies cron.Job interface
+func (w *ItemWatcher) Run() {
 	w.onTimer()
 }
 
@@ -61,12 +60,12 @@ func (w *ItemWatcher) onTimer() {
 			}
 
 			w.processInStockItems(shopItemInfo)
-		}(item)
+		}(*item)
 	}
 }
 
 // AddItem add given item to the list of watched items
-func (w *ItemWatcher) AddItem(item shop.Item) error {
+func (w *ItemWatcher) AddItem(item *shop.Item) error {
 	w.items = append(w.items, item)
 
 	return nil
@@ -85,7 +84,7 @@ func (w *ItemWatcher) RemoveItem(item shop.Item) {
 }
 
 // InStockChan returns channel where InStock items will appear
-func (w ItemWatcher) InStockChan() <-chan shop.ItemOption {
+func (w ItemWatcher) InStockChan() <-chan shop.Item {
 	return w.inStockChan
 }
 
@@ -96,12 +95,12 @@ func (w *ItemWatcher) processInStockItems(items ...shop.ItemOption) {
 		if item.StockStatusString != shop.ItemStatusInStock {
 			continue
 		}
-		w.inStockChan <- item
+		w.inStockChan <- shop.Item{Article: item.Article, SizeID: item.Number}
 	}
 }
 
 // New constructs new ItemWatcher instance
-func New(client *next.Client, config *Config) ItemWatcher {
+func New(client *next.Client, config *Config) *ItemWatcher {
 	// TODO: add TZ support
 	watcher := ItemWatcher{
 		Client:         client,
@@ -110,9 +109,9 @@ func New(client *next.Client, config *Config) ItemWatcher {
 		itemsLock:      &sync.Mutex{},
 	}
 
-	watcher.inStockChan = make(chan shop.ItemOption, 20)
+	watcher.inStockChan = make(chan shop.Item, 20)
 	interval := "@every " + watcher.UpdateInterval.String()
-	watcher.cron.AddFunc(interval, watcher.Process)
+	watcher.cron.AddJob(interval, &watcher)
 
-	return watcher
+	return &watcher
 }
