@@ -65,8 +65,7 @@ func TestWatcherPassesInStockItemsToChannel(t *testing.T) {
 
 	w.Run()
 	defer func() {
-		err := w.Stop()
-		assert.NoError(t, err)
+		w.Stop()
 	}()
 
 	select {

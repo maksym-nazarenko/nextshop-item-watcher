@@ -16,7 +16,7 @@ type Watcher interface {
 	InStockChan() <-chan shop.Item
 	RemoveItem(shop.Item)
 	Start() error
-	Stop() error
+	Stop()
 }
 
 // ItemWatcher holds information about items to watch after
@@ -37,11 +37,11 @@ func (w *ItemWatcher) Start() error {
 }
 
 // Stop terminates periodic checking
-func (w *ItemWatcher) Stop() error {
+func (w *ItemWatcher) Stop() {
+	log.Println("[INFO] Stopping web watcher")
+
 	defer close(w.inStockChan)
 	w.cron.Stop()
-
-	return nil
 }
 
 // Run satisfies cron.Job interface

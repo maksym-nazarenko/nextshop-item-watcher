@@ -76,6 +76,10 @@ func (m *SubscriptionMediator) Start() {
 	}
 }
 
+func (m *SubscriptionMediator) Stop() {
+	log.Println("[INFO] Stopping mediator")
+}
+
 func (m *SubscriptionMediator) findItemByShopItem(item shop.Item) (subscription.Item, error) {
 	for _, it := range m.ReadSubscriptions() {
 		if it.ShopItem.Article == item.Article && it.ShopItem.SizeID == item.SizeID {

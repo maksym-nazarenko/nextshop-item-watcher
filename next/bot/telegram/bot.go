@@ -19,8 +19,7 @@ type Bot struct {
 }
 
 // Start begins the message loop
-func (b Bot) Start() {
-
+func (b *Bot) Start() {
 	b.tb.Handle("/start", b.cmdStart)
 
 	b.tb.Handle(telebot.OnText, func(msg *telebot.Message) {
@@ -28,6 +27,11 @@ func (b Bot) Start() {
 	})
 
 	b.tb.Start()
+}
+
+func (b *Bot) Stop() {
+	log.Println("[INFO] Stopping Telegram bot")
+	b.tb.Stop()
 }
 
 func (b *Bot) cmdStart(m *telebot.Message) {
