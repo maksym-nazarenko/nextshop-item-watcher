@@ -58,7 +58,9 @@ func (c *Client) GetOptionsByArticle(article string) ([]shop.ItemOption, error) 
 
 	bodyString := string(body)
 
-	json.NewDecoder(strings.NewReader(bodyString)).Decode(&optionResponse)
+	if err := json.NewDecoder(strings.NewReader(bodyString)).Decode(&optionResponse); err != nil {
+		return nil, err
+	}
 
 	return optionResponse.Options, nil
 }

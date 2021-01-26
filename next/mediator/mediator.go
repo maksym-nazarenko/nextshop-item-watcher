@@ -57,7 +57,7 @@ func (m *SubscriptionMediator) CreateSubscription(item subscription.Item) (bool,
 
 // RemoveSubscription removes subscription from system
 func (m *SubscriptionMediator) RemoveSubscription(item subscription.Item) (bool, error) {
-	return m.RemoveSubscription(item)
+	return m.StorageBackend.RemoveSubscription(item)
 }
 
 // Start begins the main loop
