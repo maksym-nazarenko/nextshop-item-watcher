@@ -53,7 +53,10 @@ func TestWatcherPassesInStockItemsToChannel(t *testing.T) {
 	w, err := New(
 		next.NewClient(
 			testutils.NewClientWithPayload(payload),
-			"https://www.example.com", "ru",
+			next.Config{
+				BaseURL: "https://www.next.ua",
+				Lang:    "ru",
+			},
 		),
 		&Config{UpdateInterval: 10 * time.Millisecond},
 	)

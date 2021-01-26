@@ -17,6 +17,12 @@ const (
 	EndpointGetExtendedOptions = "/itemstock/getextendedoptions"
 )
 
+// Config holds necessary configuration for HTTPClient
+type Config struct {
+	BaseURL string
+	Lang    string
+}
+
 // HTTPClient interface to be implemented by different clients
 type HTTPClient interface {
 	Get(url string) (resp *http.Response, err error)
@@ -86,10 +92,10 @@ func (c *Client) GetItemInfo(shopItem shop.Item) (shop.ItemOption, error) {
 }
 
 // NewClient creates a Next client
-func NewClient(httpClient HTTPClient, baseURL string, lang string) *Client {
+func NewClient(httpClient HTTPClient, c Config) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
-	return &Client{HTTPClient: httpClient, BaseURL: baseURL, Language: lang}
+	return &Client{HTTPClient: httpClient, BaseURL: c.BaseURL, Language: c.Lang}
 }
