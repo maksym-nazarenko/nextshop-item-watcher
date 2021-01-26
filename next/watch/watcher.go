@@ -76,7 +76,7 @@ func (w *ItemWatcher) RemoveItem(item shop.Item) {
 	w.itemsLock.Lock()
 	defer w.itemsLock.Unlock()
 	for index, it := range w.items {
-		if item.Article == it.Article && item.SizeID == item.SizeID {
+		if item.Article == it.Article && item.SizeID == it.SizeID {
 			w.items = append(w.items[:index], w.items[index+1:]...)
 			return
 		}
@@ -100,7 +100,7 @@ func (w *ItemWatcher) processInStockItems(items ...shop.ItemOption) {
 }
 
 // New constructs new ItemWatcher instance
-func New(client *next.Client, config *Config) *ItemWatcher {
+func New(client *next.Client, config *Config) (*ItemWatcher, error) {
 	// TODO: add TZ support
 	watcher := ItemWatcher{
 		Client:         client,
@@ -111,7 +111,10 @@ func New(client *next.Client, config *Config) *ItemWatcher {
 
 	watcher.inStockChan = make(chan shop.Item, 20)
 	interval := "@every " + watcher.UpdateInterval.String()
-	watcher.cron.AddJob(interval, &watcher)
+	_, err := watcher.cron.AddJob(interval, &watcher)
+	if err != nil {
+		return nil, err
+	}
 
-	return &watcher
+	return &watcher, nil
 }
