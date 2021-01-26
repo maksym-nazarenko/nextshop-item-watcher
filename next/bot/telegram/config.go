@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	// TELEGRAM_TOKEN_ENV_VARIABLE holds the name of environment variable where Telegram token resides
-	TELEGRAM_TOKEN_ENV_VARIABLE = "NWI_TELEGRAM_TOKEN"
+	// TelegramTokenEnvVariable holds the name of environment variable where Telegram token resides
+	TelegramTokenEnvVariable = "NWI_TELEGRAM_TOKEN"
 )
 
 // Config holds telegram bot configuration
