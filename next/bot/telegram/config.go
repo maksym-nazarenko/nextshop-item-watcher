@@ -12,4 +12,5 @@ const (
 // Config holds telegram bot configuration
 type Config struct {
 	AllowedUsers []subscription.User
+	Token        string
 }

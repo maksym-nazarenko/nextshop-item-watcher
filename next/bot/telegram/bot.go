@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"errors"
 	"log"
 	"time"
 
@@ -50,13 +51,17 @@ func (b *Bot) cmdStart(m *telebot.Message) {
 }
 
 // New instantiates new Bot object
-func New(httpClient *next.Client, mediator *mediator.SubscriptionMediator, config *Config, token string) (*Bot, error) {
+func New(httpClient *next.Client, mediator *mediator.SubscriptionMediator, config *Config) (*Bot, error) {
+	if config.Token == "" {
+		return nil, errors.New("Telegram Bot token must be set")
+	}
+
 	longPoller := &telebot.LongPoller{
 		Timeout: 5 * time.Second,
 	}
 
 	tb, err := telebot.NewBot(telebot.Settings{
-		Token:  token,
+		Token:  config.Token,
 		Poller: NewWhitelistUserMiddlewarePoller(longPoller, config.AllowedUsers),
 	})
 

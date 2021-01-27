@@ -91,8 +91,8 @@ func (m *SubscriptionMediator) findItemByShopItem(item shop.Item) (subscription.
 }
 
 // New instantiates SubscriptionMediator object
-func New(storageBackend SubscriptionStorage, watcher watch.Watcher) SubscriptionMediator {
-	return SubscriptionMediator{
+func New(storageBackend SubscriptionStorage, watcher watch.Watcher) *SubscriptionMediator {
+	return &SubscriptionMediator{
 		StorageBackend:              storageBackend,
 		watcher:                     watcher,
 		newSubscriptionItemChan:     make(chan subscription.Item),
