@@ -23,12 +23,12 @@ func (m *MemoryStorage) ReadSubscriptions() []subscription.Item {
 }
 
 // CreateSubscription creates new subscription from subscription storage
-func (m *MemoryStorage) CreateSubscription(item subscription.Item) (bool, error) {
+func (m *MemoryStorage) CreateSubscription(item *subscription.Item) (bool, error) {
 	m.itemsLock.Lock()
 	defer m.itemsLock.Unlock()
 
 	if _, ok := m.items[item.User.ID]; !ok {
-		m.items[item.User.ID] = append(m.items[item.User.ID], item)
+		m.items[item.User.ID] = append(m.items[item.User.ID], *item)
 		return true, nil
 	}
 
@@ -39,18 +39,19 @@ func (m *MemoryStorage) CreateSubscription(item subscription.Item) (bool, error)
 		}
 	}
 
-	m.items[item.User.ID] = append(userSubscriptions, item)
+	m.items[item.User.ID] = append(userSubscriptions, *item)
+
 	return true, nil
 }
 
 // RemoveSubscription removes subscription from subscription storage
-func (m *MemoryStorage) RemoveSubscription(item subscription.Item) (bool, error) {
+func (m *MemoryStorage) RemoveSubscription(item *subscription.Item) (bool, error) {
 	panic("not implemented") // TODO: Implement
 }
 
 // NewMemoryStorage constructs new instance of MemoryStorage
-func NewMemoryStorage() MemoryStorage {
-	return MemoryStorage{
+func NewMemoryStorage() *MemoryStorage {
+	return &MemoryStorage{
 		items:     make(map[string][]subscription.Item, 10),
 		itemsLock: &sync.Mutex{},
 	}

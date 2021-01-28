@@ -98,8 +98,7 @@ func (s *System) doStart() error {
 
 	// TODO: dynamically construct the storage
 	storage := storage.NewMemoryStorage()
-
-	mediator := mediator.New(&storage, watcher)
+	mediator := mediator.New(storage, watcher)
 
 	bot, err := newTelegramBot(httpClient, mediator, s.config)
 	if err != nil {

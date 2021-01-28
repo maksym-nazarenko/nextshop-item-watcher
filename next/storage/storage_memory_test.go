@@ -16,7 +16,7 @@ func TestStorageMemory_addItemToEmptyStorage(t *testing.T) {
 	assert.Equal(0, len(strg.ReadSubscriptions()))
 
 	added, err := strg.CreateSubscription(
-		subscription.Item{
+		&subscription.Item{
 			User: subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
 				Article: "111-222",
@@ -38,7 +38,7 @@ func TestStorageMemory_addItemAddsSameItemOnlyOnce(t *testing.T) {
 	assert.Equal(0, len(strg.ReadSubscriptions()))
 
 	added, err := strg.CreateSubscription(
-		subscription.Item{
+		&subscription.Item{
 			User: subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
 				Article: "111-222",
@@ -53,7 +53,7 @@ func TestStorageMemory_addItemAddsSameItemOnlyOnce(t *testing.T) {
 	assert.Equal(1, len(strg.ReadSubscriptions()))
 
 	added, err = strg.CreateSubscription(
-		subscription.Item{
+		&subscription.Item{
 			User: subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
 				Article: "111-222",
@@ -75,7 +75,7 @@ func TestStorageMemory_addItemAddsSecondItemIfDifferent(t *testing.T) {
 	assert.Equal(0, len(strg.ReadSubscriptions()))
 
 	added, err := strg.CreateSubscription(
-		subscription.Item{
+		&subscription.Item{
 			User: subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
 				Article: "111-333",
@@ -90,7 +90,7 @@ func TestStorageMemory_addItemAddsSecondItemIfDifferent(t *testing.T) {
 	assert.Equal(1, len(strg.ReadSubscriptions()))
 
 	added, err = strg.CreateSubscription(
-		subscription.Item{
+		&subscription.Item{
 			User: subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
 				Article: "111-333",

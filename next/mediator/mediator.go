@@ -12,17 +12,16 @@ import (
 // SubscriptionStorage describes storage-related actions
 type SubscriptionStorage interface {
 	ReadSubscriptions() []subscription.Item
-	CreateSubscription(subscription.Item) (bool, error)
-	RemoveSubscription(subscription.Item) (bool, error)
+	CreateSubscription(*subscription.Item) (bool, error)
+	RemoveSubscription(*subscription.Item) (bool, error)
 }
 
 // SubscriptionMediator de-couples different components of the system
 type SubscriptionMediator struct {
 	StorageBackend SubscriptionStorage
 
-	watcher                     watch.Watcher
-	newSubscriptionItemChan     chan subscription.Item
-	subscriptionItemCreatedChan chan subscription.Item
+	watcher       watch.Watcher
+	inStockItemCh chan subscription.Item
 }
 
 // ReadSubscriptions reads all subscriptions
@@ -31,7 +30,21 @@ func (m *SubscriptionMediator) ReadSubscriptions() []subscription.Item {
 }
 
 // CreateSubscription creates new subscription in system
-func (m *SubscriptionMediator) CreateSubscription(item subscription.Item) (bool, error) {
+func (m *SubscriptionMediator) CreateSubscription(item *subscription.Item) (bool, error) {
+	_, err := item.RegisterObserver(
+		&Observer{
+			ID: item.User.ID,
+			handler: func(item subscription.Item) {
+				log.Printf("[DEBUG] Item is in stock: %v\n", item)
+				m.inStockItemCh <- item
+			},
+		},
+	)
+
+	if err != nil {
+		return false, err
+	}
+
 	ok, err := m.StorageBackend.CreateSubscription(item)
 	if err != nil {
 		return false, err
@@ -45,18 +58,11 @@ func (m *SubscriptionMediator) CreateSubscription(item subscription.Item) (bool,
 		return false, err
 	}
 
-	return item.RegisterObserver(
-		&Observer{
-			ID: item.User.ID,
-			handler: func(item subscription.Item) {
-				log.Printf("Item is in stock: %v\n", item)
-			},
-		},
-	)
+	return true, nil
 }
 
 // RemoveSubscription removes subscription from system
-func (m *SubscriptionMediator) RemoveSubscription(item subscription.Item) (bool, error) {
+func (m *SubscriptionMediator) RemoveSubscription(item *subscription.Item) (bool, error) {
 	return m.StorageBackend.RemoveSubscription(item)
 }
 
@@ -80,6 +86,10 @@ func (m *SubscriptionMediator) Stop() {
 	log.Println("[INFO] Stopping mediator")
 }
 
+func (m *SubscriptionMediator) InStockItemCh() <-chan subscription.Item {
+	return m.inStockItemCh
+}
+
 func (m *SubscriptionMediator) findItemByShopItem(item shop.Item) (subscription.Item, error) {
 	for _, it := range m.ReadSubscriptions() {
 		if it.ShopItem.Article == item.Article && it.ShopItem.SizeID == item.SizeID {
@@ -93,9 +103,8 @@ func (m *SubscriptionMediator) findItemByShopItem(item shop.Item) (subscription.
 // New instantiates SubscriptionMediator object
 func New(storageBackend SubscriptionStorage, watcher watch.Watcher) *SubscriptionMediator {
 	return &SubscriptionMediator{
-		StorageBackend:              storageBackend,
-		watcher:                     watcher,
-		newSubscriptionItemChan:     make(chan subscription.Item),
-		subscriptionItemCreatedChan: make(chan subscription.Item),
+		StorageBackend: storageBackend,
+		inStockItemCh:  make(chan subscription.Item, 10),
+		watcher:        watcher,
 	}
 }
