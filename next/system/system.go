@@ -7,7 +7,6 @@ import (
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/bot/telegram"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/mediator"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/storage"
-	"github.com/maxim-nazarenko/nextshop-item-watcher/next/subscription"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/watch"
 )
 
@@ -66,12 +65,7 @@ func newTelegramBot(httpClient *next.Client, mediator *mediator.SubscriptionMedi
 	bot, err := telegram.New(
 		httpClient,
 		mediator,
-		&telegram.Config{
-			AllowedUsers: []subscription.User{
-				subscription.User{ID: "219836184"},
-			},
-			Token: c.Bot.Token,
-		},
+		&c.Bot,
 	)
 
 	if err != nil {
