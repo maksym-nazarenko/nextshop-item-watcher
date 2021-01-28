@@ -9,6 +9,7 @@ import (
 
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/mediator"
+	"github.com/maxim-nazarenko/nextshop-item-watcher/next/subscription"
 )
 
 // Bot works as a frontend to the systems
@@ -17,6 +18,7 @@ type Bot struct {
 	mediator   *mediator.SubscriptionMediator
 	config     *Config
 	tb         *telebot.Bot
+	stopCh     chan struct{}
 }
 
 // Start begins the message loop
@@ -27,12 +29,28 @@ func (b *Bot) Start() {
 
 	})
 
+	go func() {
+		for {
+			select {
+			case item := <-b.mediator.InStockItemCh():
+				b.handleInStockItem(item)
+			case <-b.stopCh:
+				return
+			}
+		}
+	}()
+
 	b.tb.Start()
 }
 
 func (b *Bot) Stop() {
 	log.Println("[INFO] Stopping Telegram bot")
+	close(b.stopCh)
 	b.tb.Stop()
+}
+
+func (b *Bot) handleInStockItem(item subscription.Item) {
+	log.Println("[DEBUG] Bot: new item in stock: ", item)
 }
 
 func (b *Bot) cmdStart(m *telebot.Message) {
@@ -74,6 +92,7 @@ func New(httpClient *next.Client, mediator *mediator.SubscriptionMediator, confi
 		mediator:   mediator,
 		config:     config,
 		tb:         tb,
+		stopCh:     make(chan struct{}),
 	}
 
 	return bot, nil
