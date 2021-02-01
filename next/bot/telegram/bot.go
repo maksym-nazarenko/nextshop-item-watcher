@@ -62,10 +62,6 @@ func (b *Bot) Stop() {
 }
 
 func (b *Bot) callbackDispatcher(c *telebot.Callback) {
-	type inlineCallbackData struct {
-		Article string
-		Size    int
-	}
 
 	dataItems := strings.Split(c.Data, "|")
 	if len(dataItems) != 2 {
@@ -80,12 +76,12 @@ func (b *Bot) callbackDispatcher(c *telebot.Callback) {
 		return
 	}
 
-	var data struct {
+	var inlineCallbackData struct {
 		Article string
 		Size    int
 	}
 
-	if err := mapstructure.Decode(decodedData, &data); err != nil {
+	if err := mapstructure.Decode(decodedData, &inlineCallbackData); err != nil {
 		log.Println("[ERROR] Could not map the callback data to structure: " + err.Error())
 
 	}
@@ -95,7 +91,7 @@ func (b *Bot) callbackDispatcher(c *telebot.Callback) {
 			User: subscription.User{
 				ID: strconv.Itoa(c.Sender.ID),
 			},
-			ShopItem: shop.NewItem(data.Article, data.Size),
+			ShopItem: shop.NewItem(inlineCallbackData.Article, inlineCallbackData.Size),
 		},
 	)
 
@@ -106,9 +102,9 @@ func (b *Bot) callbackDispatcher(c *telebot.Callback) {
 	}
 	var messageText string
 	if created {
-		messageText = fmt.Sprintf("Subscription for %s with sizeID %d created", data.Article, data.Size)
+		messageText = fmt.Sprintf("Subscription for %s with sizeID %d created", inlineCallbackData.Article, inlineCallbackData.Size)
 	} else {
-		messageText = fmt.Sprintf("Subscription for %s with sizeID %d creation skipped: exists", data.Article, data.Size)
+		messageText = fmt.Sprintf("Subscription for %s with sizeID %d creation skipped: exists", inlineCallbackData.Article, inlineCallbackData.Size)
 	}
 
 	if _, err = b.tb.Edit(c.Message, messageText); err != nil {
@@ -181,9 +177,6 @@ func (b *Bot) cmdNewArticle(m *telebot.Message) {
 		log.Println("[ERROR] Could send message: " + err.Error())
 		return
 	}
-}
-
-func (b *Bot) cmdList(m *telebot.Message) {
 }
 
 func (b *Bot) updateBotCommands() {
