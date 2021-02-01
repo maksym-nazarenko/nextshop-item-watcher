@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/maxim-nazarenko/nextshop-item-watcher/next"
+
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/shop"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/subscription"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/watch"
@@ -22,6 +24,7 @@ type SubscriptionMediator struct {
 
 	watcher       watch.Watcher
 	inStockItemCh chan subscription.Item
+	httpClient    *next.Client
 }
 
 // ReadSubscriptions reads all subscriptions
@@ -66,6 +69,16 @@ func (m *SubscriptionMediator) RemoveSubscription(item *subscription.Item) (bool
 	return m.StorageBackend.RemoveSubscription(item)
 }
 
+func (m *SubscriptionMediator) FetchSizeIDs(article string) ([]shop.ItemOption, error) {
+	items, err := m.httpClient.GetOptionsByArticle(article)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
 // Start begins the main loop
 func (m *SubscriptionMediator) Start() {
 	var item subscription.Item
@@ -101,10 +114,11 @@ func (m *SubscriptionMediator) findItemByShopItem(item shop.Item) (subscription.
 }
 
 // New instantiates SubscriptionMediator object
-func New(storageBackend SubscriptionStorage, watcher watch.Watcher) *SubscriptionMediator {
+func New(storageBackend SubscriptionStorage, watcher watch.Watcher, httpClient *next.Client) *SubscriptionMediator {
 	return &SubscriptionMediator{
 		StorageBackend: storageBackend,
 		inStockItemCh:  make(chan subscription.Item, 10),
 		watcher:        watcher,
+		httpClient:     httpClient,
 	}
 }

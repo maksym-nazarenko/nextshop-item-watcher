@@ -5,6 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/maxim-nazarenko/nextshop-item-watcher/next"
+
+	"github.com/maxim-nazarenko/nextshop-item-watcher/next/testutils"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/shop"
@@ -17,7 +21,17 @@ import (
 func TestCreateSubscription(t *testing.T) {
 	storage := storage.NewMemoryStorage()
 	watcher, _ := watch.New(nil, &watch.Config{UpdateInterval: 2 * time.Second})
-	mediator := New(storage, watcher)
+	mediator := New(
+		storage,
+		watcher,
+		next.NewClient(
+			testutils.NewClientWithPayload(""),
+			next.Config{
+				BaseURL: "",
+				Lang:    "uk",
+			},
+		),
+	)
 
 	assert := assert.New(t)
 
