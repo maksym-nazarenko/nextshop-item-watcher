@@ -1,7 +1,6 @@
 package mediator
 
 import (
-	"log"
 	"testing"
 	"time"
 
@@ -40,19 +39,7 @@ func TestCreateSubscription(t *testing.T) {
 		ShopItem: shop.NewItem("111-222", 10),
 	}
 
-	ok, err := item.RegisterObserver(
-		&Observer{
-			ID: t.Name() + "-observer",
-			handler: func(item subscription.Item) {
-				log.Printf("[DEBUG] Item is in stock: %v\n", item)
-			},
-		},
-	)
-
-	assert.NoError(err)
-	assert.True(ok)
-
-	ok, err = mediator.CreateSubscription(
+	ok, err := mediator.CreateSubscription(
 		&item,
 	)
 
@@ -61,7 +48,4 @@ func TestCreateSubscription(t *testing.T) {
 
 	assert.Equal(1, len(mediator.ReadSubscriptions()))
 	assert.Equal(1, len(storage.ReadSubscriptions()))
-
-	assert.Equal(2, len(mediator.ReadSubscriptions()[0].Observers()))
-	assert.Equal(2, len(storage.ReadSubscriptions()[0].Observers()))
 }

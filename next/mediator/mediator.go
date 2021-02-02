@@ -34,20 +34,6 @@ func (m *SubscriptionMediator) ReadSubscriptions() []subscription.Item {
 
 // CreateSubscription creates new subscription in system
 func (m *SubscriptionMediator) CreateSubscription(item *subscription.Item) (bool, error) {
-	_, err := item.RegisterObserver(
-		&Observer{
-			ID: item.User.ID,
-			handler: func(item subscription.Item) {
-				log.Printf("[DEBUG] Item is in stock: %v\n", item)
-				m.inStockItemCh <- item
-			},
-		},
-	)
-
-	if err != nil {
-		return false, err
-	}
-
 	ok, err := m.StorageBackend.CreateSubscription(item)
 	if err != nil {
 		return false, err
@@ -91,7 +77,7 @@ func (m *SubscriptionMediator) Start() {
 			continue
 		}
 
-		item.NotifyAll()
+		m.inStockItemCh <- item
 	}
 }
 
