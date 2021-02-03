@@ -34,7 +34,26 @@ func (m *SubscriptionMediator) ReadSubscriptions() []subscription.Item {
 
 // CreateSubscription creates new subscription in system
 func (m *SubscriptionMediator) CreateSubscription(item *subscription.Item) (bool, error) {
-	ok, err := m.StorageBackend.CreateSubscription(item)
+	extendedOptions, err := m.httpClient.GetItemExtendedOption(item.ShopItem.Article)
+
+	if err != nil {
+		log.Println("[ERROR] Could not enrich subscription item with extra data: " + err.Error())
+	}
+
+	item.ShopItem.Description = extendedOptions.Description
+	option, ok := m.httpClient.FindOptionBySize(extendedOptions.Options, item.ShopItem.SizeID)
+	if ok {
+		item.ShopItem.SizeString = option.Name
+	}
+
+	url, err := m.httpClient.GetItemURLByArticle(item.ShopItem.Article)
+	if err != nil {
+		log.Println("[ERROR] Could not fetch item URL: " + err.Error())
+	}
+
+	item.ShopItem.URL = url
+
+	ok, err = m.StorageBackend.CreateSubscription(item)
 	if err != nil {
 		return false, err
 	}

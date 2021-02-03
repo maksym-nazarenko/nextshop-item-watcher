@@ -134,7 +134,7 @@ func TestGetItemInfo(t *testing.T) {
 		},
 	)
 
-	option, err := client.GetItemInfo(shop.Item{Article: "821-585", SizeID: 11})
+	option, err := client.GetItemOption("821-585", 11)
 	assert := assert.New(t)
 
 	assert.NoError(err)
@@ -187,7 +187,7 @@ func TestGetItemInfo_returnsErrorOnWrongSizeID(t *testing.T) {
 		},
 	)
 
-	_, err := client.GetItemInfo(shop.Item{Article: "821-585", SizeID: 1})
+	_, err := client.GetItemOption("821-585", 1)
 	assert.Error(t, err)
 }
 

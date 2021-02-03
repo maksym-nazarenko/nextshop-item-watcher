@@ -36,7 +36,6 @@ func (b *Bot) Start() {
 
 	b.tb.Handle("/help", func(msg *telebot.Message) {
 		b.updateBotCommands()
-
 	})
 
 	b.tb.Handle(telebot.OnCallback, b.callbackDispatcher)
@@ -83,7 +82,6 @@ func (b *Bot) callbackDispatcher(c *telebot.Callback) {
 
 	if err := mapstructure.Decode(decodedData, &inlineCallbackData); err != nil {
 		log.Println("[ERROR] Could not map the callback data to structure: " + err.Error())
-
 	}
 
 	created, err := b.mediator.CreateSubscription(
@@ -100,6 +98,7 @@ func (b *Bot) callbackDispatcher(c *telebot.Callback) {
 			log.Println("[ERROR] Could not update message: " + err.Error())
 		}
 	}
+
 	var messageText string
 	if created {
 		messageText = fmt.Sprintf("Subscription for %s with sizeID %d created", inlineCallbackData.Article, inlineCallbackData.Size)
@@ -114,6 +113,23 @@ func (b *Bot) callbackDispatcher(c *telebot.Callback) {
 
 func (b *Bot) handleInStockItem(item subscription.Item) {
 	log.Println("[DEBUG] Bot: new item in stock: ", item)
+	inlineURL := &telebot.ReplyMarkup{}
+
+	if item.ShopItem.URL != "" {
+		inlineURL.Inline(
+			inlineURL.Row(
+				inlineURL.URL(item.ShopItem.Description+", "+item.ShopItem.SizeString, item.ShopItem.URL),
+			),
+		)
+	}
+	_, err := b.tb.Send(
+		ChatID(item.User.ID),
+		"Item in stock",
+		inlineURL,
+	)
+	if err != nil {
+		log.Println("[ERROR] Could not notify user about in-stock item: " + err.Error())
+	}
 }
 
 func (b *Bot) cmdStart(m *telebot.Message) {

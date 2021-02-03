@@ -53,7 +53,7 @@ func (w *ItemWatcher) onTimer() {
 	log.Println("ItemWatcher timer fired")
 	for _, item := range w.items {
 		go func(item shop.Item) {
-			shopItemInfo, err := w.Client.GetItemInfo(item)
+			shopItemInfo, err := w.Client.GetItemOption(item.Article, item.SizeID)
 			if err != nil {
 				log.Println("[ERROR] + " + err.Error())
 				return
