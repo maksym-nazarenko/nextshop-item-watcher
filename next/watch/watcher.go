@@ -73,6 +73,7 @@ func (w *ItemWatcher) AddItem(item *shop.Item) error {
 
 // RemoveItem removes watching item from the list so it will not be processed next time when cron fires
 func (w *ItemWatcher) RemoveItem(item shop.Item) {
+	log.Printf("[DEBUG] watcher: removing item %v\n", item)
 	w.itemsLock.Lock()
 	defer w.itemsLock.Unlock()
 	for index, it := range w.items {

@@ -17,7 +17,8 @@ func TestStorageMemory_addItemToEmptyStorage(t *testing.T) {
 
 	added, err := strg.CreateSubscription(
 		&subscription.Item{
-			User: subscription.User{ID: "user-1"},
+			Active: true,
+			User:   subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
 				Article: "111-222",
 				SizeID:  1,
@@ -39,7 +40,8 @@ func TestStorageMemory_addItemAddsSameItemOnlyOnce(t *testing.T) {
 
 	added, err := strg.CreateSubscription(
 		&subscription.Item{
-			User: subscription.User{ID: "user-1"},
+			Active: true,
+			User:   subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
 				Article: "111-222",
 				SizeID:  10,
@@ -54,7 +56,8 @@ func TestStorageMemory_addItemAddsSameItemOnlyOnce(t *testing.T) {
 
 	added, err = strg.CreateSubscription(
 		&subscription.Item{
-			User: subscription.User{ID: "user-1"},
+			Active: true,
+			User:   subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
 				Article: "111-222",
 				SizeID:  10,
@@ -76,7 +79,8 @@ func TestStorageMemory_addItemAddsSecondItemIfDifferent(t *testing.T) {
 
 	added, err := strg.CreateSubscription(
 		&subscription.Item{
-			User: subscription.User{ID: "user-1"},
+			Active: true,
+			User:   subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
 				Article: "111-333",
 				SizeID:  11,
@@ -91,10 +95,66 @@ func TestStorageMemory_addItemAddsSecondItemIfDifferent(t *testing.T) {
 
 	added, err = strg.CreateSubscription(
 		&subscription.Item{
-			User: subscription.User{ID: "user-1"},
+			Active: true,
+			User:   subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
 				Article: "111-333",
 				SizeID:  12,
+			},
+		},
+	)
+
+	assert.True(added)
+	assert.NoError(err)
+
+	assert.Equal(2, len(strg.ReadSubscriptions()))
+}
+
+func TestStorageMemory_readSubscriptionsFetchesOnlyActive(t *testing.T) {
+	strg := NewMemoryStorage()
+
+	assert := assert.New(t)
+	assert.Equal(0, len(strg.ReadSubscriptions()))
+
+	added, err := strg.CreateSubscription(
+		&subscription.Item{
+			Active: true,
+			User:   subscription.User{ID: "user-1"},
+			ShopItem: shop.Item{
+				Article: "111-222",
+				SizeID:  10,
+			},
+		},
+	)
+
+	assert.True(added)
+	assert.NoError(err)
+
+	assert.Equal(1, len(strg.ReadSubscriptions()))
+
+	added, err = strg.CreateSubscription(
+		&subscription.Item{
+			Active: false,
+			User:   subscription.User{ID: "user-5"},
+			ShopItem: shop.Item{
+				Article: "222-123",
+				SizeID:  10,
+			},
+		},
+	)
+
+	assert.True(added)
+	assert.NoError(err)
+
+	assert.Equal(1, len(strg.ReadSubscriptions()))
+
+	added, err = strg.CreateSubscription(
+		&subscription.Item{
+			Active: true,
+			User:   subscription.User{ID: "user-2"},
+			ShopItem: shop.Item{
+				Article: "333-444",
+				SizeID:  25,
 			},
 		},
 	)

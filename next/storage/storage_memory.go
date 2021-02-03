@@ -15,8 +15,12 @@ type MemoryStorage struct {
 // ReadSubscriptions reads all subscriptions from subscription storage
 func (m *MemoryStorage) ReadSubscriptions() []subscription.Item {
 	ret := make([]subscription.Item, 0, len(m.items))
-	for _, item := range m.items {
-		ret = append(ret, item...)
+	for _, items := range m.items {
+		for _, item := range items {
+			if item.Active {
+				ret = append(ret, item)
+			}
+		}
 	}
 
 	return ret
@@ -47,6 +51,27 @@ func (m *MemoryStorage) CreateSubscription(item *subscription.Item) (bool, error
 // RemoveSubscription removes subscription from subscription storage
 func (m *MemoryStorage) RemoveSubscription(item *subscription.Item) (bool, error) {
 	panic("not implemented") // TODO: Implement
+}
+
+func (m *MemoryStorage) DisableSubscription(item subscription.Item) error {
+	m.itemsLock.Lock()
+	defer m.itemsLock.Unlock()
+
+	userSubscriptions, ok := m.items[item.User.ID]
+	if !ok {
+		return nil
+	}
+
+	for index, userItem := range userSubscriptions {
+		if userItem.ShopItem.Article == item.ShopItem.Article && userItem.ShopItem.SizeID == item.ShopItem.SizeID {
+			userSubscriptions[index] = userSubscriptions[len(userSubscriptions)-1]
+			m.items[item.User.ID] = userSubscriptions[:len(userSubscriptions)-1]
+
+			return nil
+		}
+	}
+
+	return nil
 }
 
 // NewMemoryStorage constructs new instance of MemoryStorage

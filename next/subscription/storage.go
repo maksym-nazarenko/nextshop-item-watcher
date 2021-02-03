@@ -8,6 +8,7 @@ type Reader interface {
 // Writer describes interface for write operations
 type Writer interface {
 	CreateSubscription(Item) (bool, error)
+	DisableSubscription(Item) error
 	RemoveSubscription(Item) (bool, error)
 }
 

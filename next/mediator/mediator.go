@@ -13,6 +13,7 @@ import (
 
 // SubscriptionStorage describes storage-related actions
 type SubscriptionStorage interface {
+	DisableSubscription(subscription.Item) error
 	ReadSubscriptions() []subscription.Item
 	CreateSubscription(*subscription.Item) (bool, error)
 	RemoveSubscription(*subscription.Item) (bool, error)
@@ -92,11 +93,17 @@ func (m *SubscriptionMediator) Start() {
 	for inStockItem := range m.watcher.InStockChan() {
 		log.Printf("[DEBUG] item appeared in stock: %v", inStockItem)
 		if item, err = m.findItemByShopItem(inStockItem); err != nil {
-			log.Printf("[ERROR]: %s\n", err.Error())
+			log.Printf("[ERROR] %s\n", err.Error())
 			continue
 		}
 
 		m.inStockItemCh <- item
+
+		m.watcher.RemoveItem(shop.Item{Article: item.ShopItem.Article, SizeID: item.ShopItem.SizeID})
+		log.Printf("[DEBUG] mediator: disabling subscription %v\n", item)
+		if err := m.StorageBackend.DisableSubscription(item); err != nil {
+			log.Printf("[ERROR] mediator: could not disable subscription: %s\n", err.Error())
+		}
 	}
 }
 

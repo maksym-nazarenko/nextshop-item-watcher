@@ -35,6 +35,7 @@ func TestCreateSubscription(t *testing.T) {
 	assert := assert.New(t)
 
 	item := subscription.Item{
+		Active:   true,
 		User:     subscription.User{ID: "user-"},
 		ShopItem: shop.NewItem("111-222", 10),
 	}

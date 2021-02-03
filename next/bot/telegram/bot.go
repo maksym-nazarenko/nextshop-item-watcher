@@ -86,6 +86,7 @@ func (b *Bot) callbackDispatcher(c *telebot.Callback) {
 
 	created, err := b.mediator.CreateSubscription(
 		&subscription.Item{
+			Active: true,
 			User: subscription.User{
 				ID: strconv.Itoa(c.Sender.ID),
 			},
