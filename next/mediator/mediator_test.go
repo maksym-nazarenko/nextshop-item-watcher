@@ -41,12 +41,17 @@ func TestCreateSubscription(t *testing.T) {
 	}
 
 	ok, err := mediator.CreateSubscription(
-		&item,
+		item,
 	)
 
 	assert.NoError(err)
 	assert.True(ok)
 
-	assert.Equal(1, len(mediator.ReadSubscriptions()))
-	assert.Equal(1, len(storage.ReadSubscriptions()))
+	subscriptions, err := mediator.ReadSubscriptions()
+	assert.NoError(err)
+	assert.Equal(1, len(subscriptions))
+
+	storageSubscriptions, err := storage.ReadSubscriptions()
+	assert.NoError(err)
+	assert.Equal(1, len(storageSubscriptions))
 }

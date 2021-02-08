@@ -13,10 +13,15 @@ import (
 
 // SubscriptionStorage describes storage-related actions
 type SubscriptionStorage interface {
+	CreateSubscription(subscription.Item) (bool, error)
 	DisableSubscription(subscription.Item) error
-	ReadSubscriptions() []subscription.Item
-	CreateSubscription(*subscription.Item) (bool, error)
-	RemoveSubscription(*subscription.Item) (bool, error)
+	EnableSubscription(subscription.Item) error
+	ReadAllSubscriptions() ([]subscription.Item, error)
+	ReadSubscriptions() ([]subscription.Item, error)
+	ReadSubscriptionsByShopItem(shop.Item) ([]subscription.Item, error)
+	ReadUserAllSubscriptions(subscription.User) ([]subscription.Item, error)
+	ReadUserSubscriptions(subscription.User) ([]subscription.Item, error)
+	RemoveSubscription(subscription.Item) (bool, error)
 }
 
 // SubscriptionMediator de-couples different components of the system
@@ -29,12 +34,12 @@ type SubscriptionMediator struct {
 }
 
 // ReadSubscriptions reads all subscriptions
-func (m *SubscriptionMediator) ReadSubscriptions() []subscription.Item {
+func (m *SubscriptionMediator) ReadSubscriptions() ([]subscription.Item, error) {
 	return m.StorageBackend.ReadSubscriptions()
 }
 
 // CreateSubscription creates new subscription in system
-func (m *SubscriptionMediator) CreateSubscription(item *subscription.Item) (bool, error) {
+func (m *SubscriptionMediator) CreateSubscription(item subscription.Item) (bool, error) {
 	extendedOptions, err := m.httpClient.GetItemExtendedOption(item.ShopItem.Article)
 
 	if err != nil {
@@ -71,7 +76,7 @@ func (m *SubscriptionMediator) CreateSubscription(item *subscription.Item) (bool
 }
 
 // RemoveSubscription removes subscription from system
-func (m *SubscriptionMediator) RemoveSubscription(item *subscription.Item) (bool, error) {
+func (m *SubscriptionMediator) RemoveSubscription(item subscription.Item) (bool, error) {
 	return m.StorageBackend.RemoveSubscription(item)
 }
 
@@ -116,7 +121,12 @@ func (m *SubscriptionMediator) InStockItemCh() <-chan subscription.Item {
 }
 
 func (m *SubscriptionMediator) findItemByShopItem(item shop.Item) (subscription.Item, error) {
-	for _, it := range m.ReadSubscriptions() {
+	subscriptions, err := m.ReadSubscriptions()
+	if err != nil {
+		return subscription.Item{}, err
+	}
+
+	for _, it := range subscriptions {
 		if it.ShopItem.Article == item.Article && it.ShopItem.SizeID == item.SizeID {
 			return it, nil
 		}
