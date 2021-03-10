@@ -34,3 +34,18 @@ jobs:
       - name: Unit tests
         run: |
           go test -v ./...
+
+  golangci:
+    name: lint
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: v1.14
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: 1.35.2
+          skip-go-installation: true
