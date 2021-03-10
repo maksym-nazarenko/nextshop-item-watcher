@@ -130,10 +130,10 @@ func (m *MongoStorage) CreateSubscription(item subscription.Item) (bool, error) 
 
 	res := m.client.Database("next").Collection("subscriptions").FindOne(
 		ctx,
-		bson.D{
-			{"user.id", item.User.ID},
-			{"shopitem.article", item.ShopItem.Article},
-			{"shopitem.sizeid", item.ShopItem.SizeID},
+		bson.M{
+			"user.id":          item.User.ID,
+			"shopitem.article": item.ShopItem.Article,
+			"shopitem.sizeid":  item.ShopItem.SizeID,
 		},
 	)
 
@@ -161,8 +161,8 @@ func (m *MongoStorage) DisableSubscription(item subscription.Item) error {
 	_, err := m.client.Database("next").Collection("subscriptions").UpdateOne(
 		ctx,
 		bson.M{"shopitem.article": item.ShopItem.Article, "shopitem.sizeid": item.ShopItem.SizeID, "user.id": item.User.ID},
-		bson.D{
-			{"$set", bson.M{"active": false}},
+		bson.M{
+			"$set": bson.M{"active": false},
 		},
 	)
 	if err != nil {
@@ -179,8 +179,8 @@ func (m *MongoStorage) EnableSubscription(item subscription.Item) error {
 	_, err := m.client.Database("next").Collection("subscriptions").UpdateOne(
 		ctx,
 		bson.M{"shopitem.article": item.ShopItem.Article, "shopitem.sizeid": item.ShopItem.SizeID, "user.id": item.User.ID},
-		bson.D{
-			{"$set", bson.M{"active": true}},
+		bson.M{
+			"$set": bson.M{"active": true},
 		},
 	)
 	if err != nil {

@@ -462,7 +462,7 @@ func TestStorageMemory_readSubscriptionsByShopItem(t *testing.T) {
 	assert.Equal(2, len(subscriptions))
 
 	expected := []subscription.Item{
-		subscription.Item{
+		{
 			Active: true,
 			User:   subscription.User{ID: "user-1"},
 			ShopItem: shop.Item{
@@ -470,8 +470,7 @@ func TestStorageMemory_readSubscriptionsByShopItem(t *testing.T) {
 				SizeID:  10,
 			},
 		},
-
-		subscription.Item{
+		{
 			Active: true,
 			User:   subscription.User{ID: "user-3"},
 			ShopItem: shop.Item{
