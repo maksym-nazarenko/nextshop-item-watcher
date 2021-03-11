@@ -33,7 +33,10 @@ func Test_buildEndpointURL_withExtraVars(t *testing.T) {
 
 	c.buildEndpointURL("/v1/endpoint/path", "var1", "var2")
 
-	assert.Equal(t, "https://some.host.com/ru/v1/endpoint/path/var1/var2", c.buildEndpointURL("/v1/endpoint/path", "var1", "var2"))
+	assert.Equal(t,
+		"https://some.host.com/ru/v1/endpoint/path/var1/var2",
+		c.buildEndpointURL("/v1/endpoint/path", "var1", "var2"),
+	)
 }
 
 func TestGetOptionsByArticle(t *testing.T) {
@@ -139,7 +142,16 @@ func TestGetItemInfo(t *testing.T) {
 
 	assert.NoError(err)
 	assert.NotNil(option)
-	assert.EqualValues(shop.ItemOption{Article: "821-585", Name: "EU S стандартный", Number: 11, Price: "635 грн", StockStatusString: "ComingSoon"}, option)
+	assert.EqualValues(
+		shop.ItemOption{
+			Article:           "821-585",
+			Name:              "EU S стандартный",
+			Number:            11,
+			Price:             "635 грн",
+			StockStatusString: "ComingSoon",
+		},
+		option,
+	)
 }
 
 func TestGetItemInfo_returnsErrorOnWrongSizeID(t *testing.T) {

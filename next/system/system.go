@@ -43,13 +43,13 @@ func (s *System) doStop() {
 	close(s.stopCh)
 }
 
-func newHTTPCLient(c Config) (*next.Client, error) {
+func newHTTPCLient(c Config) *next.Client {
 	httpClient := next.NewClient(
 		nil,
 		c.HTTP.Client,
 	)
 
-	return httpClient, nil
+	return httpClient
 }
 
 func newWatcher(httpClient *next.Client, c Config) (*watch.ItemWatcher, error) {
@@ -76,10 +76,7 @@ func newTelegramBot(httpClient *next.Client, mediator *mediator.SubscriptionMedi
 }
 
 func (s *System) doStart() error {
-	httpClient, err := newHTTPCLient(s.config)
-	if err != nil {
-		return err
-	}
+	httpClient := newHTTPCLient(s.config)
 
 	watcher, err := newWatcher(httpClient, s.config)
 	if err != nil {

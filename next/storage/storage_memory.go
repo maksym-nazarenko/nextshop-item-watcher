@@ -40,7 +40,10 @@ func (m *MemoryStorage) CreateSubscription(item subscription.Item) (bool, error)
 
 	userSubscriptions := m.items[item.User.ID]
 	for _, el := range userSubscriptions {
-		if item.User.ID == el.User.ID && item.ShopItem.Article == el.ShopItem.Article && item.ShopItem.SizeID == el.ShopItem.SizeID {
+		// TODO (@maxim-nazarenko): consider implement Comparable on subscription.Item
+		if item.User.ID == el.User.ID &&
+			item.ShopItem.Article == el.ShopItem.Article &&
+			item.ShopItem.SizeID == el.ShopItem.SizeID {
 			return false, nil
 		}
 	}
@@ -105,7 +108,7 @@ func (m *MemoryStorage) ReadSubscriptionsByShopItem(item shop.Item) ([]subscript
 func (m *MemoryStorage) ReadUserSubscriptions(user subscription.User) ([]subscription.Item, error) {
 	userItems, ok := m.items[user.ID]
 	if !ok {
-		return nil, errors.New("No such user found")
+		return nil, errors.New("no such user found")
 	}
 
 	ret := make([]subscription.Item, 0, len(userItems))
@@ -121,7 +124,7 @@ func (m *MemoryStorage) ReadUserSubscriptions(user subscription.User) ([]subscri
 func (m *MemoryStorage) ReadUserAllSubscriptions(user subscription.User) ([]subscription.Item, error) {
 	userItems, ok := m.items[user.ID]
 	if !ok {
-		return nil, errors.New("No such user found")
+		return nil, errors.New("no such user found")
 	}
 
 	ret := make([]subscription.Item, 0, len(userItems))
@@ -154,10 +157,9 @@ func (m *MemoryStorage) RemoveSubscription(item subscription.Item) (bool, error)
 }
 
 func (m *MemoryStorage) findUserItem(item subscription.Item) (*subscription.Item, error) {
-
 	userSubscriptions, ok := m.items[item.User.ID]
 	if !ok {
-		return nil, errors.New("No user for subscription found")
+		return nil, errors.New("no user for subscription found")
 	}
 
 	for _, userItem := range userSubscriptions {
@@ -166,7 +168,7 @@ func (m *MemoryStorage) findUserItem(item subscription.Item) (*subscription.Item
 		}
 	}
 
-	return nil, errors.New("No subscription found")
+	return nil, errors.New("no subscription found")
 }
 
 // NewMemoryStorage constructs new instance of MemoryStorage

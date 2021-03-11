@@ -47,8 +47,7 @@ func runSystem(config system.Config) int {
 	for {
 		select {
 		case s := <-c:
-			switch s {
-			case os.Interrupt:
+			if s == os.Interrupt {
 				if gracefulShutdownInProgress {
 					log.Fatalln("Forced shutdown requested. Exiting immediately.")
 					return 1

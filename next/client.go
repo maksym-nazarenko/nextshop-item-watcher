@@ -78,7 +78,7 @@ func (c *Client) GetItemOption(article string, size int) (shop.ItemOption, error
 
 	item, found := c.FindOptionBySize(items, size)
 	if !found {
-		return option, errors.New("Item not found")
+		return option, errors.New("item not found")
 	}
 
 	item.Article = article
@@ -92,12 +92,13 @@ func (c *Client) GetItemExtendedOption(article string) (shop.ItemExtendedOption,
 	var resp *http.Response
 	var err error
 	if resp, err = c.HTTPClient.Get(url); err != nil {
-		return shop.ItemExtendedOption{}, fmt.Errorf("Couldn't get extended options for <%s> article: %s", article, err.Error())
+		return shop.ItemExtendedOption{},
+			fmt.Errorf("couldn't get extended options for <%s> article: %s", article, err.Error())
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return shop.ItemExtendedOption{}, errors.New("Can't read the response body")
+		return shop.ItemExtendedOption{}, errors.New("can't read the response body")
 	}
 	resp.Body.Close()
 
@@ -119,7 +120,6 @@ func (c *Client) FindOptionBySize(options []shop.ItemOption, size int) (shop.Ite
 	}
 
 	return shop.ItemOption{}, false
-
 }
 
 func (c *Client) GetItemURLByArticle(article string) (string, error) {
@@ -129,11 +129,13 @@ func (c *Client) GetItemURLByArticle(article string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer response.Body.Close()
+
 	if response.StatusCode == 200 && response.Request != nil && response.Request.URL.Fragment == article {
 		return response.Request.URL.String(), nil
 	}
 
-	return "", errors.New("Invalid URL format in response")
+	return "", errors.New("invalid URL format in response")
 }
 
 // NewClient creates a Next client

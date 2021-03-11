@@ -17,11 +17,11 @@ func parseArticleByLink(l string) (string, error) {
 	}
 
 	if !parsedURL.IsAbs() {
-		return "", errors.New("Only absolute URLs are supported")
+		return "", errors.New("only absolute URLs are supported")
 	}
 
 	if parsedURL.Scheme != "https" {
-		return "", errors.New("Only https:// scheme is supported")
+		return "", errors.New("only https:// scheme is supported")
 	}
 
 	pathComponents := strings.Split(parsedURL.Path, "/")
@@ -30,7 +30,7 @@ func parseArticleByLink(l string) (string, error) {
 		return article, nil
 	}
 
-	return "", errors.New("Cannot extract article from the link")
+	return "", errors.New("cannot extract article from the link")
 }
 
 // ParseStringWithArticle parses a string and extracts the article number
@@ -49,5 +49,5 @@ func ParseStringWithArticle(msg string) (string, error) {
 		return article, nil
 	}
 
-	return "", fmt.Errorf("Unknown article format <%s>. Use article number '111-222', '111222' or link to item page", msg)
+	return "", fmt.Errorf("unknown article format <%s>. Use article number '111-222', '111222' or link to item page", msg)
 }

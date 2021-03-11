@@ -43,7 +43,7 @@ func (s *mongoServer) start() error {
 
 	p, err := s.mongodbC.MappedPort(ctx, "27017")
 	if err != nil {
-		return errors.New("Can't get MongoDB container mapped port")
+		return errors.New("can't get MongoDB container mapped port")
 	}
 
 	s.Port = p.Int()

@@ -27,7 +27,9 @@ func (p *WhitelistUserMiddlewarePoller) filter(u *telebot.Update) bool {
 }
 
 // NewWhitelistUserMiddlewarePoller instantiates new WhitelistUserMiddlewarePoller object
-func NewWhitelistUserMiddlewarePoller(originalPoller telebot.Poller, allowedUsers []subscription.User) *telebot.MiddlewarePoller {
+func NewWhitelistUserMiddlewarePoller(
+	originalPoller telebot.Poller,
+	allowedUsers []subscription.User) *telebot.MiddlewarePoller {
 	allowedMap := make(map[string]bool)
 	for _, u := range allowedUsers {
 		allowedMap[u.ID] = true

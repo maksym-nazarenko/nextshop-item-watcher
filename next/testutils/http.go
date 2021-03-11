@@ -34,7 +34,6 @@ type MockHTTPClient struct {
 }
 
 func (c *MockHTTPClient) Get(url string) (resp *http.Response, err error) {
-
 	return &http.Response{StatusCode: 200, Status: "OK", Body: c.Body}, nil
 }
 

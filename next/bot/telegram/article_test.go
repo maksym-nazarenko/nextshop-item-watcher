@@ -40,6 +40,7 @@ func TestParseArticle(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			article, err := ParseStringWithArticle(test.input)
 			assert.NoError(t, err)
@@ -76,6 +77,7 @@ func TestParseArticle_returnErrorOnUnsupportedFormats(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			article, err := ParseStringWithArticle(test.input)
 			assert.Error(t, err)

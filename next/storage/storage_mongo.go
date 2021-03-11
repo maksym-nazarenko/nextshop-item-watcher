@@ -74,7 +74,11 @@ func (m *MongoStorage) ReadUserSubscriptions(user subscription.User) ([]subscrip
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := m.client.Database("next").Collection("subscriptions").Find(ctx, bson.M{"user.id": user.ID, "active": true})
+	cursor, err := m.client.Database("next").Collection("subscriptions").Find(
+		ctx,
+		bson.M{"user.id": user.ID, "active": true},
+	)
+
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +114,11 @@ func (m *MongoStorage) ReadSubscriptionsByShopItem(item shop.Item) ([]subscripti
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := m.client.Database("next").Collection("subscriptions").Find(ctx, bson.M{"shopitem.article": item.Article, "shopitem.sizeid": item.SizeID})
+	cursor, err := m.client.Database("next").Collection("subscriptions").Find(
+		ctx,
+		bson.M{"shopitem.article": item.Article, "shopitem.sizeid": item.SizeID},
+	)
+
 	if err != nil {
 		return nil, err
 	}

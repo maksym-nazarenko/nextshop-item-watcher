@@ -61,7 +61,6 @@ func (b *Bot) Stop() {
 }
 
 func (b *Bot) callbackDispatcher(c *telebot.Callback) {
-
 	dataItems := strings.Split(c.Data, "|")
 	if len(dataItems) != 2 {
 		log.Printf("[ERROR] expected data of %d items, got %d\n", 2, len(dataItems))
@@ -102,9 +101,13 @@ func (b *Bot) callbackDispatcher(c *telebot.Callback) {
 
 	var messageText string
 	if created {
-		messageText = fmt.Sprintf("Subscription for %s with sizeID %d created", inlineCallbackData.Article, inlineCallbackData.Size)
+		messageText = fmt.Sprintf("Subscription for %s with sizeID %d created",
+			inlineCallbackData.Article,
+			inlineCallbackData.Size)
 	} else {
-		messageText = fmt.Sprintf("Subscription for %s with sizeID %d creation skipped: exists", inlineCallbackData.Article, inlineCallbackData.Size)
+		messageText = fmt.Sprintf("Subscription for %s with sizeID %d creation skipped: exists",
+			inlineCallbackData.Article,
+			inlineCallbackData.Size)
 	}
 
 	if _, err = b.tb.Edit(c.Message, messageText); err != nil {
@@ -200,9 +203,9 @@ func (b *Bot) updateBotCommands() {
 	log.Println("[INFO] Updating bot commands")
 	err := b.tb.SetCommands(
 		[]telebot.Command{
-			telebot.Command{Text: "/new", Description: "Create new subscription"},
-			telebot.Command{Text: "/list", Description: "List all my active subscriptions"},
-			telebot.Command{Text: "/help", Description: "Show help"},
+			{Text: "/new", Description: "Create new subscription"},
+			{Text: "/list", Description: "List all my active subscriptions"},
+			{Text: "/help", Description: "Show help"},
 		},
 	)
 
@@ -214,7 +217,7 @@ func (b *Bot) updateBotCommands() {
 // New instantiates new Bot object
 func New(httpClient *next.Client, mediator *mediator.SubscriptionMediator, config *Config) (*Bot, error) {
 	if config.Token == "" {
-		return nil, errors.New("Telegram Bot token must be set")
+		return nil, errors.New("telegram Bot token must be set")
 	}
 
 	longPoller := &telebot.LongPoller{
