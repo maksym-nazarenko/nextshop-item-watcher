@@ -46,4 +46,4 @@ EOF
 fi
 
 # Run tests before committing any changes
-exec go test ./...
+make test

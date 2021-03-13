@@ -23,6 +23,6 @@ remote="$1"
 url="$2"
 
 # Run golangci-lint
-docker run --rm -v $(git rev-parse --show-toplevel):/app:ro -w /app golangci/golangci-lint:v1.35.2 golangci-lint run
+make lint
 
 exit $?
