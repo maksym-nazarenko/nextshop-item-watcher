@@ -79,7 +79,7 @@ func newTelegramBot(httpClient *next.Client, mediator *mediator.SubscriptionMedi
 
 func newStorage(storageConfig storage.Config) (storage.Storage, error) {
 	supportedDrivers := map[string]func() (storage.Storage, error){
-		"memory": func() (storage.Storage, error) {
+		"memory": func() (storage.Storage, error) { //nolint
 			return storage.NewMemoryStorage(), nil
 		},
 		"mongo": func() (storage.Storage, error) {
