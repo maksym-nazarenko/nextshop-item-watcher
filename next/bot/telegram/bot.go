@@ -94,9 +94,12 @@ func (b *Bot) callbackDispatcher(c *telebot.Callback) {
 	)
 
 	if err != nil {
+		log.Println("[ERROR] subscription creation failed: " + err.Error())
 		if _, err = b.tb.Edit(c.Message, "Subscription creation failed"); err != nil {
 			log.Println("[ERROR] Could not update message: " + err.Error())
 		}
+
+		return
 	}
 
 	var messageText string
