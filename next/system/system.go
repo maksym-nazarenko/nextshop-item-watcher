@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next"
@@ -8,6 +9,7 @@ import (
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/mediator"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/storage"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/watch"
+	"github.com/mitchellh/mapstructure"
 )
 
 type StopEvent struct{}
@@ -75,6 +77,44 @@ func newTelegramBot(httpClient *next.Client, mediator *mediator.SubscriptionMedi
 	return bot, nil
 }
 
+func newStorage(storageConfig storage.Config) (storage.Storage, error) {
+	supportedDrivers := map[string]func() (storage.Storage, error){
+		"memory": func() (storage.Storage, error) { //nolint
+			return storage.NewMemoryStorage(), nil
+		},
+		"mongo": func() (storage.Storage, error) {
+			var mongoConfig storage.MongoConfig
+			decoder, err := mapstructure.NewDecoder(
+				&mapstructure.DecoderConfig{
+					Result:   &mongoConfig,
+					Metadata: nil,
+					DecodeHook: mapstructure.ComposeDecodeHookFunc(
+						mapstructure.StringToTimeDurationHookFunc(),
+					),
+				},
+			)
+
+			if err != nil {
+				return nil, err
+			}
+
+			if err := decoder.Decode(storageConfig.Options); err != nil {
+				return nil, err
+			}
+
+			return storage.NewMongoWithConfig(mongoConfig)
+		},
+	}
+
+	factoryFunc, ok := supportedDrivers[storageConfig.Driver]
+	if !ok {
+		return nil, fmt.Errorf("storage driver '%s' is not supported", storageConfig.Driver)
+	}
+	log.Printf("Initializing '%s' storage", storageConfig.Driver)
+
+	return factoryFunc()
+}
+
 func (s *System) doStart() error {
 	httpClient := newHTTPCLient(s.config)
 
@@ -87,8 +127,11 @@ func (s *System) doStart() error {
 		return err
 	}
 
-	// TODO: dynamically construct the storage
-	storage := storage.NewMemoryStorage()
+	storage, err := newStorage(s.config.Storage)
+	if err != nil {
+		return err
+	}
+
 	mediator := mediator.New(storage, watcher, httpClient)
 
 	bot, err := newTelegramBot(httpClient, mediator, s.config)
