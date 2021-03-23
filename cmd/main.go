@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 	"os/signal"
@@ -16,6 +17,7 @@ func loadConfig() (system.Config, error) {
 
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("..")
 
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "__"))
 	viper.SetEnvPrefix("NWI")
@@ -28,6 +30,13 @@ func loadConfig() (system.Config, error) {
 	err := viper.Unmarshal(&config)
 	if err != nil {
 		return config, err
+	}
+
+	if viper.Get("storage") == nil {
+		return config, errors.New("configuration is missing 'storage' section")
+	}
+	if viper.GetString("storage.driver") == "" {
+		return config, errors.New("storage section must contain 'driver' key")
 	}
 
 	return config, nil

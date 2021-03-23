@@ -14,6 +14,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+type MongoConfig struct {
+	URL            string
+	ConnectTimeout time.Duration
+}
+
 type SubscriptionUser struct {
 	ID string
 }
@@ -224,4 +229,8 @@ func NewMongo(uri string) (*MongoStorage, error) {
 	mongoStorage := MongoStorage{client: client}
 
 	return &mongoStorage, nil
+}
+
+func NewMongoWithConfig(config MongoConfig) (*MongoStorage, error) {
+	return NewMongo(config.URL)
 }
