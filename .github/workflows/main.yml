@@ -27,10 +27,6 @@ jobs:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-${{ hashFiles('**/go.sum') }}
 
-      - name: Install dependencies
-        run: |
-          go get
-
       - name: Unit tests
         run: |
           go test -v ./...
