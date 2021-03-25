@@ -1,0 +1,29 @@
+---
+
+version: '2.4'
+
+x-common: &common_config
+  restart: "on-failure"
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "2"
+
+services:
+  app:
+    <<: *common_config
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - mongo
+    volumes:
+      - ../config.yml:/config.yml:ro
+    stop_signal: SIGTERM
+
+  mongo:
+    image: mongo:4.0
+    <<: *common_config
+    volumes:
+      - ./mongo-data:/data/db

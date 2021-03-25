@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/system"
 
@@ -72,13 +73,13 @@ func runSystem(config system.Config) int {
 	}
 
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	gracefulShutdownInProgress := false
 
 	for {
 		select {
 		case s := <-c:
-			if s == os.Interrupt {
+			if s == os.Interrupt || s == syscall.SIGTERM {
 				if gracefulShutdownInProgress {
 					log.Fatalln("Forced shutdown requested. Exiting immediately.")
 					return 1
