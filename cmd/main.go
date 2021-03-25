@@ -23,8 +23,32 @@ func loadConfig() (system.Config, error) {
 	viper.SetEnvPrefix("NWI")
 	viper.AutomaticEnv()
 
-	if err := viper.ReadInConfig(); err != nil {
+	keysToBind := []string{
+		"http.client.baseurl",
+		"http.client.lang",
+		"watch.updateinterval",
+		"bot.allowedusers",
+		"bot.token",
+		"storage.driver",
+		"storage.options",
+	}
+	if err := func(keys []string) error {
+		for _, k := range keys {
+			if errViper := viper.BindEnv(k); errViper != nil {
+				return errViper
+			}
+		}
+		return nil
+	}(keysToBind); err != nil {
 		return config, err
+	}
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			return config, err
+		}
+		// config file not found, but keep trying with Env
+		log.Printf("Config file not found: %s", err.Error())
 	}
 
 	err := viper.Unmarshal(&config)
@@ -32,10 +56,8 @@ func loadConfig() (system.Config, error) {
 		return config, err
 	}
 
-	if viper.Get("storage") == nil {
-		return config, errors.New("configuration is missing 'storage' section")
-	}
-	if viper.GetString("storage.driver") == "" {
+	// todo(maks): introduce interface Validator.Validate() for configuration
+	if config.Storage.Driver == "" {
 		return config, errors.New("storage section must contain 'driver' key")
 	}
 
