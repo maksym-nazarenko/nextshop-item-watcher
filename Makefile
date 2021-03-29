@@ -10,3 +10,9 @@ lint:
 
 docker-build:
 	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) -f docker/Dockerfile .
+
+run:
+	docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d mongo
+
+stop:
+	docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml stop mongo

@@ -95,6 +95,24 @@ func (m *SubscriptionMediator) Start() {
 	var item subscription.Item
 	var err error
 
+	items, err := m.StorageBackend.ReadAllSubscriptions()
+	if err != nil {
+		log.Println("[ERROR] could not read subscription items from storage: " + err.Error())
+	}
+
+	if len(items) == 0 {
+		log.Println("[INFO] no items in persistent storage found. Skipping populating watcher.")
+	}
+
+	for _, i := range items {
+		if err := m.watcher.AddItem(&i.ShopItem); err != nil {
+			log.Printf("[ERROR] initial item addition to watcher failed: article=%s, sizeID=%d\n",
+				i.ShopItem.Article,
+				i.ShopItem.SizeID,
+			)
+		}
+	}
+
 	for inStockItem := range m.watcher.InStockChan() {
 		log.Printf("[DEBUG] item appeared in stock: %v", inStockItem)
 		if item, err = m.findItemByShopItem(inStockItem); err != nil {

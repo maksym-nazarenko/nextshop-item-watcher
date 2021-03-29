@@ -16,9 +16,13 @@ import (
 func loadConfig() (system.Config, error) {
 	var config system.Config
 
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("..")
+	if f, ok := os.LookupEnv("NWI_CONFIG_FILE"); ok {
+		log.Println("Using provided config file: " + f)
+		viper.SetConfigFile(f)
+	} else {
+		viper.SetConfigName("config")
+		viper.AddConfigPath(".")
+	}
 
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "__"))
 	viper.SetEnvPrefix("NWI")

@@ -169,6 +169,7 @@ func (b *Bot) cmdNewArticle(m *telebot.Message) {
 
 	items, err := b.mediator.FetchSizeIDs(article)
 	if err != nil {
+		log.Println("[ERROR] Could fetch sized: " + err.Error())
 		if _, err := b.tb.Send(m.Sender, "Could not fetch sizes fo "+article); err != nil {
 			log.Println("[ERROR] Could send message: " + err.Error())
 		}

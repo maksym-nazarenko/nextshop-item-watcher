@@ -1,8 +1,9 @@
 ---
 
 http:
-    baseURL: "https://www.next.ua"
-    lang: "ru"
+    client:
+        baseURL: "https://www.next.ua"
+        lang: "ru"
 
 watch:
     updateInterval: "3s"
@@ -13,3 +14,8 @@ bot:
         - id: "222222222"
     # This can be overridden with NWI_BOT__TOKEN environment variable
     token: "secret token"
+
+storage:
+    driver: mongo # [mongo, memory]
+    options:
+        url: mongodb://127.0.0.1:27017/next
