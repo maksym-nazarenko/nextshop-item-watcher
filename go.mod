@@ -3,8 +3,6 @@ module github.com/maxim-nazarenko/nextshop-item-watcher
 go 1.14
 
 require (
-	github.com/docker/docker v20.10.5+incompatible // indirect
-	github.com/gin-gonic/gin v1.6.3 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/viper v1.7.1
