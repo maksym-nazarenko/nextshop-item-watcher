@@ -11,17 +11,32 @@ import (
 )
 
 func Test_buildEndpointURL_noExtraVars(t *testing.T) {
-	c := NewClient(testutils.NewClientWithPayload(""), "https://some.host.com", "ru")
+	c := NewClient(
+		testutils.NewClientWithPayload(""),
+		Config{
+			BaseURL: "https://some.host.com",
+			Lang:    "ru",
+		},
+	)
 
 	assert.Equal(t, "https://some.host.com/ru/v1/endpoint/path", c.buildEndpointURL("/v1/endpoint/path"))
 }
 
 func Test_buildEndpointURL_withExtraVars(t *testing.T) {
-	c := NewClient(testutils.NewClientWithPayload(""), "https://some.host.com", "ru")
+	c := NewClient(
+		testutils.NewClientWithPayload(""),
+		Config{
+			BaseURL: "https://some.host.com",
+			Lang:    "ru",
+		},
+	)
 
 	c.buildEndpointURL("/v1/endpoint/path", "var1", "var2")
 
-	assert.Equal(t, "https://some.host.com/ru/v1/endpoint/path/var1/var2", c.buildEndpointURL("/v1/endpoint/path", "var1", "var2"))
+	assert.Equal(t,
+		"https://some.host.com/ru/v1/endpoint/path/var1/var2",
+		c.buildEndpointURL("/v1/endpoint/path", "var1", "var2"),
+	)
 }
 
 func TestGetOptionsByArticle(t *testing.T) {
@@ -61,7 +76,13 @@ func TestGetOptionsByArticle(t *testing.T) {
 		"DDFulfiller": "",
 		"FulfilmentType": ""
 	}`
-	client := NewClient(testutils.NewClientWithPayload(payload), "https://www.example.com", "ru")
+	client := NewClient(
+		testutils.NewClientWithPayload(payload),
+		Config{
+			BaseURL: "https://www.next.ua",
+			Lang:    "ru",
+		},
+	)
 
 	options, err := client.GetOptionsByArticle("127001")
 	if err != nil {
@@ -108,14 +129,29 @@ func TestGetItemInfo(t *testing.T) {
 		"DDFulfiller": "",
 		"FulfilmentType": ""
 	}`
-	client := NewClient(testutils.NewClientWithPayload(payload), "https://www.example.com", "ru")
+	client := NewClient(
+		testutils.NewClientWithPayload(payload),
+		Config{
+			BaseURL: "https://www.next.ua",
+			Lang:    "ru",
+		},
+	)
 
-	option, err := client.GetItemInfo(shop.Item{Article: "821-585", SizeID: 11})
+	option, err := client.GetItemOption("821-585", 11)
 	assert := assert.New(t)
 
 	assert.NoError(err)
 	assert.NotNil(option)
-	assert.EqualValues(shop.ItemOption{Article: "821-585", Name: "EU S стандартный", Number: 11, Price: "635 грн", StockStatusString: "ComingSoon"}, option)
+	assert.EqualValues(
+		shop.ItemOption{
+			Article:           "821-585",
+			Name:              "EU S стандартный",
+			Number:            11,
+			Price:             "635 грн",
+			StockStatusString: "ComingSoon",
+		},
+		option,
+	)
 }
 
 func TestGetItemInfo_returnsErrorOnWrongSizeID(t *testing.T) {
@@ -155,19 +191,36 @@ func TestGetItemInfo_returnsErrorOnWrongSizeID(t *testing.T) {
 		"DDFulfiller": "",
 		"FulfilmentType": ""
 	}`
-	client := NewClient(testutils.NewClientWithPayload(payload), "https://www.example.com", "ru")
+	client := NewClient(
+		testutils.NewClientWithPayload(payload),
+		Config{
+			BaseURL: "https://www.next.ua",
+			Lang:    "ru",
+		},
+	)
 
-	_, err := client.GetItemInfo(shop.Item{Article: "821-585", SizeID: 1})
+	_, err := client.GetItemOption("821-585", 1)
 	assert.Error(t, err)
 }
 
 func TestNewClient_useDefaultClientIfNotOverridden(t *testing.T) {
-	client := NewClient(nil, "https://www.example.com", "ru")
+	client := NewClient(nil,
+		Config{
+			BaseURL: "https://www.next.ua",
+			Lang:    "ru",
+		},
+	)
 	assert.IsType(t, http.DefaultClient, client.HTTPClient)
 }
 
 func TestNewClient_useProvidedClient(t *testing.T) {
 	mockedHTTPClient := testutils.NewClientWithPayload("")
-	client := NewClient(mockedHTTPClient, "https://www.example.com", "ru")
+	client := NewClient(
+		mockedHTTPClient,
+		Config{
+			BaseURL: "https://www.next.ua",
+			Lang:    "ru",
+		},
+	)
 	assert.IsType(t, mockedHTTPClient, client.HTTPClient)
 }

@@ -12,12 +12,11 @@ import (
 
 // Watcher interface to be implemented by different watchers
 type Watcher interface {
-	AddItem(shop.Item) error
-	InStockChan() <-chan shop.ItemOption
+	AddItem(*shop.Item) error
+	InStockChan() <-chan shop.Item
 	RemoveItem(shop.Item)
-	Process()
 	Start() error
-	Stop() error
+	Stop()
 }
 
 // ItemWatcher holds information about items to watch after
@@ -25,9 +24,9 @@ type ItemWatcher struct {
 	Client         *next.Client
 	UpdateInterval time.Duration
 	cron           *cron.Cron
-	items          []shop.Item
+	items          []*shop.Item
 	itemsLock      sync.Locker
-	inStockChan    chan shop.ItemOption
+	inStockChan    chan shop.Item
 }
 
 // Start begins watcher's loop of checks
@@ -38,15 +37,15 @@ func (w *ItemWatcher) Start() error {
 }
 
 // Stop terminates periodic checking
-func (w *ItemWatcher) Stop() error {
+func (w *ItemWatcher) Stop() {
+	log.Println("[INFO] Stopping web watcher")
+
 	defer close(w.inStockChan)
 	w.cron.Stop()
-
-	return nil
 }
 
-// Process is triggerred each time the cron ticks
-func (w *ItemWatcher) Process() {
+// Run satisfies cron.Job interface
+func (w *ItemWatcher) Run() {
 	w.onTimer()
 }
 
@@ -54,19 +53,19 @@ func (w *ItemWatcher) onTimer() {
 	log.Println("ItemWatcher timer fired")
 	for _, item := range w.items {
 		go func(item shop.Item) {
-			shopItemInfo, err := w.Client.GetItemInfo(item)
+			shopItemInfo, err := w.Client.GetItemOption(item.Article, item.SizeID)
 			if err != nil {
 				log.Println("[ERROR] + " + err.Error())
 				return
 			}
 
 			w.processInStockItems(shopItemInfo)
-		}(item)
+		}(*item)
 	}
 }
 
 // AddItem add given item to the list of watched items
-func (w *ItemWatcher) AddItem(item shop.Item) error {
+func (w *ItemWatcher) AddItem(item *shop.Item) error {
 	w.items = append(w.items, item)
 
 	return nil
@@ -74,10 +73,11 @@ func (w *ItemWatcher) AddItem(item shop.Item) error {
 
 // RemoveItem removes watching item from the list so it will not be processed next time when cron fires
 func (w *ItemWatcher) RemoveItem(item shop.Item) {
+	log.Printf("[DEBUG] watcher: removing item %v\n", item)
 	w.itemsLock.Lock()
 	defer w.itemsLock.Unlock()
 	for index, it := range w.items {
-		if item.Article == it.Article && item.SizeID == item.SizeID {
+		if item.Article == it.Article && item.SizeID == it.SizeID {
 			w.items = append(w.items[:index], w.items[index+1:]...)
 			return
 		}
@@ -85,7 +85,7 @@ func (w *ItemWatcher) RemoveItem(item shop.Item) {
 }
 
 // InStockChan returns channel where InStock items will appear
-func (w ItemWatcher) InStockChan() <-chan shop.ItemOption {
+func (w ItemWatcher) InStockChan() <-chan shop.Item {
 	return w.inStockChan
 }
 
@@ -96,12 +96,12 @@ func (w *ItemWatcher) processInStockItems(items ...shop.ItemOption) {
 		if item.StockStatusString != shop.ItemStatusInStock {
 			continue
 		}
-		w.inStockChan <- item
+		w.inStockChan <- shop.Item{Article: item.Article, SizeID: item.Number}
 	}
 }
 
-// New constructs new Watcher instance
-func New(client *next.Client, config *Config) Watcher {
+// New constructs new ItemWatcher instance
+func New(client *next.Client, config *Config) (*ItemWatcher, error) {
 	// TODO: add TZ support
 	watcher := ItemWatcher{
 		Client:         client,
@@ -110,9 +110,12 @@ func New(client *next.Client, config *Config) Watcher {
 		itemsLock:      &sync.Mutex{},
 	}
 
-	watcher.inStockChan = make(chan shop.ItemOption, 20)
+	watcher.inStockChan = make(chan shop.Item, 20)
 	interval := "@every " + watcher.UpdateInterval.String()
-	watcher.cron.AddFunc(interval, watcher.Process)
+	_, err := watcher.cron.AddJob(interval, &watcher)
+	if err != nil {
+		return nil, err
+	}
 
-	return &watcher
+	return &watcher, nil
 }

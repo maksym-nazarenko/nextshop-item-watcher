@@ -5,17 +5,13 @@ import (
 	"regexp"
 )
 
-// Item describes one particular item by its article and size
+// Item describes one particular item
 type Item struct {
-	Article string
-	SizeID  int
-}
-
-// NormalizeArticle normalizes article to meet canonical representation
-func NormalizeArticle(article string) string {
-	ret := regexp.MustCompile("[^0-9]").ReplaceAllLiteralString(article, "")
-
-	return ret
+	Article     string
+	SizeID      int
+	Description string
+	SizeString  string
+	URL         string
 }
 
 // ItemExtendedOption holds extended option response from Next API
@@ -46,4 +42,16 @@ const (
 
 func (item ItemOption) String() string {
 	return fmt.Sprintf("[%s] %s, %s", item.StockStatusString, item.Name, item.Price)
+}
+
+// NormalizeArticle normalizes article to meet canonical representation
+func NormalizeArticle(article string) string {
+	ret := regexp.MustCompile("[^0-9]").ReplaceAllLiteralString(article, "")
+
+	return ret
+}
+
+// NewItem instantiates new Item object with normalized article string
+func NewItem(article string, size int) Item {
+	return Item{Article: NormalizeArticle(article), SizeID: size}
 }

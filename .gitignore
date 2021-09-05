@@ -1,1 +1,5 @@
+.vscode
+
 next-item-watcher
+config.yml
+docker/mongo-data

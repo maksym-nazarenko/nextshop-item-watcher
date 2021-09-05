@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/shop"
 	"github.com/maxim-nazarenko/nextshop-item-watcher/next/testutils"
 
@@ -48,23 +50,31 @@ func TestWatcherPassesInStockItemsToChannel(t *testing.T) {
 		"FulfilmentType": ""
 	}`
 
-	w := New(
+	w, err := New(
 		next.NewClient(
 			testutils.NewClientWithPayload(payload),
-			"https://www.example.com", "ru",
+			next.Config{
+				BaseURL: "https://www.next.ua",
+				Lang:    "ru",
+			},
 		),
-		&Config{UpdateInterval: 1 * time.Second},
+		&Config{UpdateInterval: 10 * time.Millisecond},
 	)
 
-	w.AddItem(shop.Item{Article: "821-585", SizeID: 11})
+	assert.NoError(t, err)
 
-	w.Process()
-	defer w.Stop()
+	err = w.AddItem(&shop.Item{Article: "821-585", SizeID: 11})
+	assert.NoError(t, err)
+
+	w.Run()
+	defer func() {
+		w.Stop()
+	}()
 
 	select {
 	case <-w.InStockChan():
 		return
-	case <-time.After(time.Second):
+	case <-time.After(2 * time.Second):
 		t.Error("No items received")
 	}
 }

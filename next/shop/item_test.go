@@ -7,7 +7,6 @@ import (
 )
 
 func TestNormalizeArticle(t *testing.T) {
-
 	tests := []struct {
 		input    string
 		expected string
@@ -18,6 +17,7 @@ func TestNormalizeArticle(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run("Normalize <"+test.input+">", func(innerT *testing.T) {
 			assert.Equal(innerT, test.expected, NormalizeArticle(test.input))
 		})

@@ -1,12 +1,6 @@
 package subscription
 
-import "github.com/maxim-nazarenko/nextshop-item-watcher/next/shop"
-
+// User struct wraps information about user in scope of subscription flow
 type User struct {
 	ID string
-}
-
-type Item struct {
-	User       User
-	ItemOption shop.ItemOption
 }
