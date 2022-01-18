@@ -20,6 +20,9 @@ type Message struct {
 	// Conversation the message belongs to.
 	Chat *Chat `json:"chat"`
 
+	// Sender of the message, sent on behalf of a chat.
+	SenderChat *Chat `json:"sender_chat"`
+
 	// For forwarded messages, sender of the original message.
 	OriginalSender *User `json:"forward_from"`
 
@@ -88,7 +91,10 @@ type Message struct {
 
 	// For a photo, all available sizes (thumbnails).
 	Photo *Photo `json:"photo"`
-
+	
+	// For a game, information about it.
+	Game *Game `json:"game"`
+	
 	// For a sticker, information about it.
 	Sticker *Sticker `json:"sticker"`
 
@@ -217,6 +223,29 @@ type Message struct {
 
 	// Inline keyboard attached to the message.
 	ReplyMarkup InlineKeyboardMarkup `json:"reply_markup"`
+
+	VoiceChatSchedule *VoiceChatScheduled `json:"voice_chat_scheduled,omitempty"`
+
+	// For a service message, a voice chat started in the chat.
+	VoiceChatStarted *VoiceChatStarted `json:"voice_chat_started,omitempty"`
+
+	// For a service message, a voice chat ended in the chat.
+	VoiceChatEnded *VoiceChatEnded `json:"voice_chat_ended,omitempty"`
+
+	// For a service message, some users were invited in the voice chat.
+	VoiceChatParticipantsInvited *VoiceChatParticipantsInvited `json:"voice_chat_participants_invited,omitempty"`
+
+	// For a service message, represents the content of a service message,
+	// sent whenever a user in the chat triggers a proximity alert set by another user.
+	ProximityAlert *ProximityAlertTriggered `json:"proximity_alert_triggered,omitempty"`
+
+	// For a service message, represents about a change in auto-delete timer settings.
+	AutoDeleteTimer *MessageAutoDeleteTimerChanged `json:"message_auto_delete_timer_changed,omitempty"`
+}
+
+// MessageAutoDeleteTimerChanged represents a service message about a change in auto-delete timer settings.
+type MessageAutoDeleteTimerChanged struct {
+	DeleteTime int `json:"message_auto_delete_time"`
 }
 
 // MessageEntity object represents "special" parts of text messages,

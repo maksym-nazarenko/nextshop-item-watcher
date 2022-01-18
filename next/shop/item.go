@@ -3,6 +3,7 @@ package shop
 import (
 	"fmt"
 	"regexp"
+	"strings"
 )
 
 // Item describes one particular item
@@ -46,7 +47,8 @@ func (item ItemOption) String() string {
 
 // NormalizeArticle normalizes article to meet canonical representation
 func NormalizeArticle(article string) string {
-	ret := regexp.MustCompile("[^0-9]").ReplaceAllLiteralString(article, "")
+	ret := regexp.MustCompile("[^0-9a-zA-Z]").ReplaceAllLiteralString(article, "")
+	ret = strings.ToLower(ret)
 
 	return ret
 }

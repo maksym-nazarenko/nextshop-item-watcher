@@ -4,6 +4,7 @@
 [![GoDoc](https://godoc.org/gopkg.in/tucnak/telebot.v2?status.svg)](https://godoc.org/gopkg.in/tucnak/telebot.v2)
 [![Travis](https://travis-ci.org/tucnak/telebot.svg?branch=v2)](https://travis-ci.org/tucnak/telebot)
 [![codecov.io](https://codecov.io/gh/tucnak/telebot/coverage.svg?branch=develop)](https://codecov.io/gh/tucnak/telebot)
+[![Discuss on Telegram](https://img.shields.io/badge/telegram-discuss-0088cc.svg)](https://t.me/go_telebot)
 
 ```bash
 go get -u gopkg.in/tucnak/telebot.v2
@@ -279,7 +280,7 @@ type Editable interface {
 	// MessageSig is a "message signature".
 	//
 	// For inline messages, return chatID = 0.
-	MessageSig() (messageID int, chatID int64)
+	MessageSig() (messageID string, chatID int64)
 }
 ```
 
@@ -291,11 +292,11 @@ type, provided by telebot:
 // a larger struct, which is often the case (you might
 // want to store some metadata alongside, or might not.)
 type StoredMessage struct {
-	MessageID int   `sql:"message_id" json:"message_id"`
-	ChatID    int64 `sql:"chat_id" json:"chat_id"`
+	MessageID string `sql:"message_id" json:"message_id"`
+	ChatID    int64  `sql:"chat_id" json:"chat_id"`
 }
 
-func (x StoredMessage) MessageSig() (int, int64) {
+func (x StoredMessage) MessageSig() (string, int64) {
 	return x.MessageID, x.ChatID
 }
 ```
@@ -337,8 +338,8 @@ func main() {
 
 	var (
 		// Universal markup builders.
-		menu     = &ReplyMarkup{ResizeReplyKeyboard: true}
-		selector = &ReplyMarkup{}
+		menu     = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+		selector = &tb.ReplyMarkup{}
 
 		// Reply buttons.
 		btnHelp     = menu.Text("ℹ Help")
@@ -389,7 +390,7 @@ func main() {
 
 You can use markup constructor for every type of possible buttons:
 ```go
-r := &ReplyMarkup{}
+r := &tb.ReplyMarkup{}
 
 // Reply buttons:
 r.Text("Hello!")
@@ -464,7 +465,9 @@ I do coding for fun but I also try to search for interesting solutions and
 optimize them as much as possible.
 If you feel like it's a good piece of software, I wouldn't mind a tip!
 
-Bitcoin: `1DkfrFvSRqgBnBuxv9BzAz83dqur5zrdTH`
+Litecoin: `ltc1qskt5ltrtyg7esfjm0ftx6jnacwffhpzpqmerus`
+
+Ethereum: `0xB78A2Ac1D83a0aD0b993046F9fDEfC5e619efCAB`
 
 # License
 
