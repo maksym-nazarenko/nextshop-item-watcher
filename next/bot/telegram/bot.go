@@ -31,14 +31,11 @@ type Bot struct {
 // Start begins the message loop
 func (b *Bot) Start() {
 	b.tb.Handle("/start", b.cmdStart)
-
-	b.tb.Handle(telebot.OnText, b.cmdNewArticle)
-
 	b.tb.Handle("/help", func(msg *telebot.Message) {
 		b.updateBotCommands()
 	})
-
 	b.tb.Handle(telebot.OnCallback, b.callbackDispatcher)
+	b.tb.Handle(telebot.OnText, b.cmdNewArticle)
 
 	go func() {
 		for {
@@ -87,7 +84,7 @@ func (b *Bot) callbackDispatcher(c *telebot.Callback) {
 		subscription.Item{
 			Active: true,
 			User: subscription.User{
-				ID: strconv.Itoa(c.Sender.ID),
+				ID: strconv.FormatInt(c.Sender.ID, 10),
 			},
 			ShopItem: shop.NewItem(inlineCallbackData.Article, inlineCallbackData.Size),
 		},

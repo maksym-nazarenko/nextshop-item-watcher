@@ -66,6 +66,7 @@ const (
 	OnDice              = "\adice"
 	OnInvoice           = "\ainvoice"
 	OnPayment           = "\apayment"
+	OnGame              = "\agame"
 
 	// Will fire when bot is added to a group.
 	OnAddedToGroup = "\aadded_to_group"
@@ -76,6 +77,9 @@ const (
 	OnNewGroupTitle     = "\anew_chat_title"
 	OnNewGroupPhoto     = "\anew_chat_photo"
 	OnGroupPhotoDeleted = "\achat_photo_del"
+	OnGroupCreated      = "\agroup_created"
+	OnSuperGroupCreated = "\asupergroup_created"
+	OnChannelCreated    = "\achannel_created"
 
 	// Migration happens when group switches to
 	// a supergroup. You might want to update
@@ -119,6 +123,46 @@ const (
 	//
 	// Handler: func(*PollAnswer)
 	OnPollAnswer = "\apoll_answer"
+
+	// Will fire on MyChatMember
+	//
+	// Handler: func(*ChatMemberUpdated)
+	OnMyChatMember = "\amy_chat_member"
+
+	// Will fire on ChatMember
+	//
+	// Handler: func(*ChatMemberUpdated)
+	OnChatMember = "\achat_member"
+
+	// Will fire on VoiceChatStarted
+	//
+	// Handler: func(*Message)
+	OnVoiceChatStarted = "\avoice_chat_started"
+
+	// Will fire on VoiceChatEnded
+	//
+	// Handler: func(*Message)
+	OnVoiceChatEnded = "\avoice_chat_ended"
+
+	// Will fire on VoiceChatParticipantsInvited
+	//
+	// Handler: func(*Message)
+	OnVoiceChatParticipantsInvited = "\avoice_chat_participants_invited"
+
+	// Will fire on ProximityAlert
+	//
+	// Handler: func(*Message)
+	OnProximityAlert = "\aproximity_alert_triggered"
+
+	// Will fire on AudoDeleteTimer
+	//
+	// Handler: func(*Message)
+	OnAutoDeleteTimer = "\amessage_auto_delete_timer_changed"
+
+	// Will fire on OnVoiceChatScheduled
+	//
+	// Handler: func(*Message)
+	OnVoiceChatScheduled = "\avoice_chat_scheduled"
 )
 
 // ChatAction is a client-side status indicating bot activity.
@@ -221,4 +265,5 @@ var (
 	Ball = &Dice{Type: "🏀"}
 	Goal = &Dice{Type: "⚽"}
 	Slot = &Dice{Type: "🎰"}
+	Bowl = &Dice{Type: "🎳"}
 )

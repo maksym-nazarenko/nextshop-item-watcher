@@ -7,9 +7,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
-	github.com/testcontainers/testcontainers-go v0.10.0
+	github.com/testcontainers/testcontainers-go v0.12.0
 	go.mongodb.org/mongo-driver v1.4.6
-	gopkg.in/tucnak/telebot.v2 v2.3.5
+	gopkg.in/tucnak/telebot.v2 v2.5.0
 )
-
-replace github.com/testcontainers/testcontainers-go v0.10.0 => github.com/maxim-nazarenko/testcontainers-go v0.10.1-0.20210323214920-5d30355e35ce

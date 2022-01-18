@@ -22,6 +22,8 @@ type File struct {
 
 	// file backed with io.Reader
 	FileReader io.Reader `json:"-"`
+
+	fileName string
 }
 
 // FromDisk constructs a new local (on-disk) file object.
